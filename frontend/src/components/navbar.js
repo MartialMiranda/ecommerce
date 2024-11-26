@@ -5,7 +5,7 @@ const Navbar = () => {
   const { isAuth } = useSelector((state) => state.auth);
 
   return (
-    <nav className="bg-white shadow-md w-full">
+    <nav className="bg-white shadow-md w-full z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <NavLink to="/" className="flex items-center">

@@ -1,0 +1,56 @@
+@startuml
+skinparam componentStyle rectangle
+
+title Diagrama de Despliegue - Ecommerce Full Stack
+
+node "Servidor Backend" as backend {
+    [server.js] <<Main Script>>
+    component "Express.js" <<Framework>> {
+        [routes/] <<Directorio>>  
+        [controllers/] <<Directorio>>
+        [models/] <<Directorio>>
+        [middlewares/] <<Directorio>>
+    }
+    [node_modules/] <<Directorio Dependencias>>
+    database "PostgreSQL" as db {
+        [ecommerce] <<Base de Datos>>
+    }
+}
+
+node "Servidor Frontend" as frontend {
+    [public/] <<Directorio Estático>>
+    component "React.js" <<Framework>> {
+        [App.js] <<Componente Raíz>>
+        [components/] <<Directorio>>
+        [pages/] <<Directorio>>
+        [hooks/] <<Directorio>>
+        [store/] <<Directorio Redux>>
+    }
+    [node_modules/] <<Directorio Dependencias>>
+}
+
+node "Cliente (Navegador)" as client {
+    [index.html] <<HTML>>
+    [main.js] <<JavaScript>>
+}
+
+node "Control de Versiones (GitHub)" as scm {
+    [branch main] <<Rama Principal>>
+    [branch feature-X] <<Rama Alterna>>
+}
+
+' Relaciones entre nodos
+backend --> db : CRUD Operaciones
+frontend --> backend : API REST (HTTP/JSON)
+client --> frontend : Descarga Recursos (HTML, CSS, JS)
+scm --> backend : Subida de Cambios
+scm --> frontend : Subida de Cambios
+
+' Descripción de carpetas y dependencias clave
+note "Backend utiliza dependencias: bcrypt, express, dotenv, pg, multer, etc." as N1
+backend .. N1
+
+note "Frontend utiliza dependencias: react, axios, redux, react-router-dom, etc." as N2
+frontend .. N2
+
+@enduml

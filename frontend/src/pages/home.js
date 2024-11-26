@@ -29,7 +29,10 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
             Productos Destacados
           </h2>
-          <ProductosDestacados />
+          <div className='bg-gray-100 p-3 rounded-lg'>
+            <ProductosDestacados />
+          </div>
+          
         </section>
 
         {/* Banner Section */}

@@ -23,21 +23,17 @@ const Categorías = () => {
   ];
 
   return (
-    <div className="w-full  mx-auto  p-6 ">
-
-      <ul className="flex flex-wrap justify-center space-x-4 space-y-4">
+    <div className="w-full mx-auto p-6">
+      <ul className="flex justify-center space-x-4">
         {categories.map((category, index) => (
           <li
             key={index}
-            className="flex flex-col items-center space-y-2 hover:bg-gray-100 p-2 rounded-md transition w-48"
+            className="flex flex-col items-center hover:bg-gray-100 p-4 rounded-md transition cursor-pointer"
           >
-            <div className="text-blue-500 text-2xl">{category.icon}</div>
-            <a
-              href="#"
-              className="text-lg font-semibold text-gray-700 hover:text-blue-500"
-            >
+            <div className="text-blue-500 text-3xl">{category.icon}</div>
+            <span className="text-lg font-semibold text-gray-700 hover:text-blue-500">
               {category.name}
-            </a>
+            </span>
           </li>
         ))}
       </ul>

@@ -39,3 +39,53 @@
     object-fit: cover;
   }
   
+  .productos-destacados {
+    width: 100%; /* Ajusta según sea necesario */
+    padding: 20px;
+  }
+  
+  .producto-card {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+  
+  .producto-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .mySwiper {
+    margin-top: 20px;
+  }
+
+  .mySwiper {
+    height: 100vh; /* O una altura específica que desees */
+  }
+  
+  .swiper-slide {
+    display: flex; /* Asegúrate de que los slides se comporten como flex items */
+    justify-content: center; /* Centra el contenido dentro del slide */
+    align-items: stretch;
+  }
+
+  .swiper-button-next,
+.swiper-button-prev {
+  color: #000; /* Cambia el color de las flechas */
+  width: 40px; /* Ancho de las flechas */
+  height: 40px; /* Alto de las flechas */
+  background: rgba(255, 255, 255, 0.8); /* Fondo blanco con algo de transparencia */
+  border-radius: 50%; /* Hacer las flechas redondas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1); /* Fondo blanco al pasar el mouse */
+}
