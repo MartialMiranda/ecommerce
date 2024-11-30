@@ -10,7 +10,10 @@ import Home from './pages/home';
 import Login from './pages/login';
 import Register from './pages/register';
 import ProductoDetallesPage from './pages/ProductoDetallesPage';
+import AgregarDireccion from './pages/AgregarDireccion';
+import MisDirecciones from './pages/MisDirecciones';
 import { useSelector } from 'react-redux';
+import EditarDireccion from './pages/EditarDireccion';
 
 const PrivateRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -38,6 +41,9 @@ const App = () => {
           {/* Rutas privadas */}
           <Route element={<PrivateRoutes />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/agregar-direccion" element={<AgregarDireccion />} />
+            <Route path="/mis-direcciones" element={<MisDirecciones />} />
+            <Route path="/editar-direccion/:id" element={<EditarDireccion />} />
           </Route>
 
           {/* Rutas restringidas */}

@@ -1,14 +1,14 @@
 const db = require('../db');
 
 const Categoria = {
-    async crear(nombre, descripcion, categoriaPadreId = null) {
+    async crear(nombre, descripcion, categoria_padre_id = null) {
         const query = `
           INSERT INTO categoria (nombre, descripcion, categoria_padre_id)
           VALUES ($1, $2, $3)
           RETURNING *;
         `;
-        console.log('Datos enviados:', { nombre, descripcion, categoriaPadreId }); // Añade este log
-        const { rows } = await db.query(query, [nombre, descripcion, categoriaPadreId]);
+        console.log('Datos enviados:', { nombre, descripcion, categoria_padre_id }); // Añade este log
+        const { rows } = await db.query(query, [nombre, descripcion, categoria_padre_id]);
         return rows[0];
       },
 
@@ -24,14 +24,14 @@ const Categoria = {
     return rows;
   },
 
-  async actualizar(id, nombre, descripcion, categoriaPadreId) {
+  async actualizar(id, nombre, descripcion, categoria_padre_id) {
     const query = `
       UPDATE categoria
       SET nombre = $1, descripcion = $2, categoria_padre_id = $3
       WHERE id = $4
       RETURNING *;
     `;
-    const { rows } = await db.query(query, [nombre, descripcion, categoriaPadreId, id]);
+    const { rows } = await db.query(query, [nombre, descripcion, categoria_padre_id, id]);
     return rows[0];
   },
 

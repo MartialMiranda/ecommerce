@@ -1,3 +1,4 @@
+// src/controllers/producto.js
 const Producto = require('../models/producto');
 const ImagenProducto = require('../models/imagen_producto');
 const fs = require('fs');
@@ -5,7 +6,7 @@ const fs = require('fs');
 const crearProducto = async (req, res) => {
   try {
     const { titulo, descripcion, precio, stock, categoria_id, usuario_id } = req.body;
-    const imagenes = req.files.map((file) => `/uploads/${file.filename}`);
+    const imagenes = req.files.map((file) => `/uploads/productos-imagenes/${file.filename}`);
 
     const nuevoProducto = await Producto.create({
       titulo,
@@ -52,12 +53,14 @@ const obtenerProductoPorId = async (req, res) => {
 };
 
 const actualizarProducto = async (req, res) => {
-  console.log('Datos del cuerpo de la solicitud:', req.body);
   try {
     const { id } = req.params;
-    const { titulo, descripcion, precio, stock, categoria_id,usuario_id, imagenes, es_activo } = req.body;
-    console.log('Datos extraídos del cuerpo de la solicitud:', titulo, descripcion, precio, stock, categoria_id, es_activo);
-    
+    const { titulo, descripcion, precio, stock, categoria_id, es_activo } = req.body;
+
+    // Verificar que los campos obligatorios no sean nulos
+    if (!titulo || !descripcion || !precio || !stock || !categoria_id) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
 
     const productoActualizado = await Producto.update(id, {
       titulo,
@@ -74,34 +77,27 @@ const actualizarProducto = async (req, res) => {
   }
 };
 
+
 const eliminarProducto = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Obtener las imágenes asociadas al producto
-    const imagenes = await ImagenProducto.findByProductoId(id);
-
-    // Eliminar las imágenes físicas
-    imagenes.forEach((imagen) => {
-      const path = `src/${imagen.url_imagen}`;
-      fs.unlinkSync(path);
-    });
-
-    // Eliminar las imágenes de la base de datos
-    await ImagenProducto.deleteByProductoId(id);
-
-    // Eliminar el producto
-    const productoEliminado = await Producto.delete(id);
-
-    if (!productoEliminado) {
+    // Verifica que el producto exista antes de intentar eliminarlo
+    const producto = await Producto.getById(id);
+    if (!producto) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
+    // Elimina el producto y sus imágenes
+    await Producto.delete(id);
+
     res.status(200).json({ message: 'Producto eliminado con éxito' });
   } catch (error) {
+    console.error('Error al eliminar el producto:', error.message);
     res.status(500).json({ message: 'Error al eliminar el producto', error: error.message });
   }
 };
+
 
 module.exports = {
   crearProducto,

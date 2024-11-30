@@ -1,78 +1,58 @@
-const db = require('../db');
+// src/models/producto.js
+const BaseDao = require('../dao/baseDao');
+const ImagenProducto = require('../models/imagen_producto');
+const fs = require('fs');
+const path = require('path');
 
-const Producto = {
-  create: async (producto) => {
-    const query = `
-      INSERT INTO producto (titulo, descripcion, precio, stock, categoria_id, usuario_id, imagenes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, titulo, descripcion, precio, stock, categoria_id, usuario_id, imagenes, fecha_creacion, es_activo;
-    `;
-    const values = [
-      producto.titulo,
-      producto.descripcion,
-      producto.precio,
-      producto.stock,
-      producto.categoria_id,
-      producto.usuario_id,
-      producto.imagenes
-    ];
-    const result = await db.query(query, values);
-    return result.rows[0];
-  },
-
-  getAll: async () => {
-    const query = `
-      SELECT p.*, json_agg(ip.url_imagen) AS imagenes
-      FROM producto p
-      LEFT JOIN imagen_producto ip ON p.id = ip.producto_id
-      GROUP BY p.id;
-    `;
-    const result = await db.query(query);
-    return result.rows;
-  },
-
-  getById: async (id) => {
-    const query = `
-      SELECT p.*, json_agg(ip.url_imagen) AS imagenes
-      FROM producto p
-      LEFT JOIN imagen_producto ip ON p.id = ip.producto_id
-      WHERE p.id = $1
-      GROUP BY p.id;
-    `;
-    const result = await db.query(query, [id]);
-    return result.rows[0];
-  },
-
-  update: async (id, producto) => {
-    const query = `
-      UPDATE producto
-      SET titulo = $1, descripcion = $2, precio = $3, stock = $4, categoria_id = $5, es_activo = $6
-      WHERE id = $7
-      RETURNING *;
-    `;
-    const values = [
-      producto.titulo,
-      producto.descripcion,
-      producto.precio,
-      producto.stock,
-      producto.categoria_id,
-      producto.es_activo,
-      id
-    ];
-    const result = await db.query(query, values);
-    console.log('Resultado de la consulta:', result);
-    return result.rows[0];
-  },
-
-  delete: async (id) => {
-    const query = `
-      DELETE FROM producto
-      WHERE id = $1
-      RETURNING id;
-    `;
-    const result = await db.query(query, [id]);
-    return result.rows[0];
+class Producto {
+  constructor() {
+    this.dao = new BaseDao('producto');  // Nombre de la tabla
   }
-};
 
-module.exports = Producto;
+  async create(producto) {
+    const newProducto = await this.dao.crear(producto);
+    return newProducto;
+  }
+
+  async getAll() {
+    return await this.dao.obtenerTodos();
+  }
+
+  async getById(id) {
+    return await this.dao.obtenerPorId(id);
+  }
+
+  async update(id, producto) {
+    return await this.dao.actualizar(id, producto);
+  }
+
+  async delete(id) {
+    // Obtener imágenes asociadas
+    const imagenes = await ImagenProducto.findByProductoId(id);
+  
+    // Eliminar archivos de imágenes
+    for (const imagen of imagenes) {
+      const filePath = path.join(__dirname, '../uploads/productos-imagenes', path.basename(imagen.url_imagen));
+      console.log('Eliminando archivo:', filePath);
+  
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log('Archivo eliminado:', filePath);
+        } else {
+          console.warn('Archivo no encontrado:', filePath);
+        }
+      } catch (error) {
+        console.error('Error al eliminar archivo:', filePath, error.message);
+      }
+    }
+  
+    // Eliminar registros de imágenes en la base de datos
+    await ImagenProducto.deleteByProductoId(id);
+  
+    // Eliminar el producto
+    return await this.dao.eliminar(id);
+  }
+}
+
+module.exports = new Producto();

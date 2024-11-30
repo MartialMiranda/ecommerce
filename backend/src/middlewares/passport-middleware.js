@@ -3,11 +3,15 @@ const { Strategy } = require('passport-jwt')
 const { SECRET } = require('../constants')
 const db = require('../db')
 
-const cookieExtractor = function (req) {
-  let token = null
-  if (req && req.cookies) token = req.cookies['token']
-  return token
-}
+const cookieExtractor = (req) => {
+  console.log("Cookies recibidas:", req.cookies);
+  let token = null;
+  if (req && req.cookies) token = req.cookies['token'];
+  console.log("Token extraído:", token);
+  return token;
+};
+
+
 
 const opts = {
   secretOrKey: SECRET,
@@ -15,23 +19,23 @@ const opts = {
 }
 
 passport.use(
-  new Strategy(opts, async ({ id }, done) => {
-    try {
-      const { rows } = await db.query(
-        'SELECT id, email FROM usuario WHERE id = $1',
-        [id]
-      )
-
-      if (!rows.length) {
-        throw new Error('401 not authorized')
-      }
-
-      let usuario = { id: rows[0].id, email: rows[0].email }
-
-      return await done(null, usuario)
-    } catch (error) {
-      console.log(error.message)
-      done(null, false)
+  new Strategy(opts, async (payload, done) => {
+      console.log("Payload recibido:", payload);
+      try {
+          const { rows } = await db.query(
+              'SELECT id, email FROM usuario WHERE id = $1',
+              [payload.id]
+          );
+          if (!rows.length) {
+              return done(null, false);
+          }
+          return done(null, { id: rows[0].id, email: rows[0].email });
+      } catch (error) {
+        console.error("Error en autenticación:", error.message);
+        return done(error, false); // Pasar el error al callback
     }
+    
   })
-)
+);
+
+

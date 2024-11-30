@@ -1,3 +1,4 @@
+// src/routes/producto.js
 const express = require('express');
 const upload = require('../middlewares/file-upload-middleware');
 const {

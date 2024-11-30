@@ -8,6 +8,8 @@ const cors = require('cors')
 const categoriaRoutes = require('./routes/categoria');
 const db = require('./db');
 const productoRoutes = require('./routes/producto');
+const direccionEnvioRoutes = require('./routes/direccion_envio');
+const usuarioRoutes = require('./routes/usuario');
 
 //import passport middleware
 require('./middlewares/passport-middleware')
@@ -29,6 +31,9 @@ app.use('/api/categorias', categoriaRoutes);
 app.use('/api/productos', productoRoutes);
 // Ruta para servir imágenes estáticas
 app.use('/uploads', express.static('src/uploads'));
+// Registrar la ruta de direccion_envio
+app.use('/api/direcciones', direccionEnvioRoutes);
+app.use('/api', usuarioRoutes);
 
 
 //app start

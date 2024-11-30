@@ -14,41 +14,6 @@ npm start
 
 estructure:
 
-ecommerce/
-│
-├── backend/
-│   ├── controllers/
-│   │   ├── usuarioController.js # Controlador para usuario
-│   ├── models/
-│   │   ├── dao.js          # Modelo para productos
-│   │   ├── usuarioModel.js          # Modelo para usuario
-│   ├── routes/
-│   │   ├── usuarioRoutes.js    # Rutas para usuario
-│   ├── server.js               # Servidor principal de Express
-│   ├── package-lock.json
-│   ├── package.json
-│   └── .env                    # Variables de entorno
-│
-└── frontend/
-    ├── public/
-    │   ├── css/                # Archivos CSS
-    │   │   └── bootstrap.css
-    │   │   └── Site.css
-    │   │   └── toastr.css
-    │   ├── icons/              # Iconos svg
-    │   └── js/                 # Archivos JavaScript
-    │       └── bootstrap.js
-    │       └── jquery-3.7.1.js
-    │       └── toastr.js
-    │       └── usuario.js       # js para usuario
-    │       └── utiles.js       # Maneja la solicitux Ajax y GetUrlBackend
-    ├── views/
-    │   ├── login.html           # Vista para login
-    │   ├── register.html        # Vista para registro
-    │   ├── home.html            # Vista para la página principal
-    └── index.html    
-
-
 📦backend
  ┣ 📂node_modules
  ┣ 📂src
@@ -57,6 +22,7 @@ ecommerce/
  ┃ ┣ 📂controllers
  ┃ ┃ ┣ 📜auth.js
  ┃ ┃ ┣ 📜categoria.js
+ ┃ ┃ ┣ 📜direccion_envio.js
  ┃ ┃ ┗ 📜producto.js
  ┃ ┣ 📂db
  ┃ ┃ ┗ 📜index.js
@@ -67,18 +33,20 @@ ecommerce/
  ┃ ┃ ┗ 📜validations-middleware.js
  ┃ ┣ 📂models
  ┃ ┃ ┣ 📜categoria.js
+ ┃ ┃ ┣ 📜detalle_pedido.js
+ ┃ ┃ ┣ 📜direccion_envio.js
+ ┃ ┃ ┣ 📜favorito.js
  ┃ ┃ ┣ 📜imagen_producto.js
+ ┃ ┃ ┣ 📜pedido.js
  ┃ ┃ ┗ 📜producto.js
  ┃ ┣ 📂routes
  ┃ ┃ ┣ 📜auth.js
  ┃ ┃ ┣ 📜categoria.js
+ ┃ ┃ ┣ 📜direccion_envio.js
  ┃ ┃ ┗ 📜producto.js
  ┃ ┣ 📂uploads
  ┃ ┃ ┣ 📜imagenes-1732416439444-410757511.jpg
  ┃ ┃ ┣ 📜imagenes-1732416439446-223381772.jpg
- ┃ ┃ ┣ 📜imagenes-1732416629014-829389276.jpg
- ┃ ┃ ┣ 📜imagenes-1732416629015-414924089.jpg
- ┃ ┃ ┗ 📜imagenes-1732416878944-99624235.jpeg
  ┃ ┣ 📂utils
  ┃ ┣ 📂validators
  ┃ ┃ ┣ 📜auth.js
@@ -92,13 +60,15 @@ ecommerce/
  ┗ 📜server.js
 
 📦frontend
- ┃ ┣ 📂public
+ ┣ 📂public
  ┃ ┣ 📜buy.ico
  ┃ ┣ 📜cart.png
  ┃ ┗ 📜index.html
  ┣ 📂src
  ┃ ┣ 📂api
- ┃ ┃ ┗ 📜auth.js
+ ┃ ┃ ┣ 📜auth.js
+ ┃ ┃ ┣ 📜direccion_envio.js
+ ┃ ┃ ┗ 📜productos.js
  ┃ ┣ 📂app
  ┃ ┃ ┗ 📜store.js
  ┃ ┣ 📂components
@@ -108,7 +78,10 @@ ecommerce/
  ┃ ┃ ┣ 📜layout.js
  ┃ ┃ ┣ 📜navbar.js
  ┃ ┃ ┣ 📜ProductCard.js
+ ┃ ┃ ┣ 📜ProductoCard.jsx
+ ┃ ┃ ┣ 📜ProductoDetalles.jsx
  ┃ ┃ ┣ 📜ProductosDestacados.js
+ ┃ ┃ ┣ 📜shoppingCart.jsx
  ┃ ┃ ┗ 📜Slider.js
  ┃ ┣ 📂features
  ┃ ┃ ┗ 📂counter
@@ -118,18 +91,24 @@ ecommerce/
  ┃ ┃ ┃ ┣ 📜counterSlice.js
  ┃ ┃ ┃ ┗ 📜counterSlice.spec.js
  ┃ ┣ 📂pages
+ ┃ ┃ ┣ 📜AgregarDireccion.jsx
  ┃ ┃ ┣ 📜dashboard.js
  ┃ ┃ ┣ 📜home.js
  ┃ ┃ ┣ 📜login.js
+ ┃ ┃ ┣ 📜MisDirecciones.jsx
+ ┃ ┃ ┣ 📜perfil_usuario.js
+ ┃ ┃ ┣ 📜ProductoDetallesPage.jsx
  ┃ ┃ ┗ 📜register.js
  ┃ ┣ 📂redux
  ┃ ┃ ┣ 📂slices
- ┃ ┃ ┃ ┗ 📜authSlice.js
+ ┃ ┃ ┃ ┣ 📜authSlice.js
+ ┃ ┃ ┃ ┗ 📜direccionEnvioSlice.js
  ┃ ┃ ┗ 📜store.js
  ┃ ┣ 📜App.js
  ┃ ┣ 📜index.js
  ┃ ┣ 📜input.css
- ┃ ┗ 📜output.css
+ ┃ ┣ 📜output.css
+ ┃ ┗ 📜styles.css
  ┣ 📜.gitignore
  ┣ 📜package-lock.json
  ┣ 📜package.json

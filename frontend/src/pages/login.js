@@ -18,15 +18,16 @@ const Login = () => {
   const dispatch = useDispatch();
   const onSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      await onLogin(values);
-      dispatch(authenticateUser());
-      localStorage.setItem('isAuth', 'true');
+      const data = await onLogin(values); // Esto enviará la solicitud al backend
+      const userData = data.data; // Obtén los datos del usuario del backend
+      localStorage.setItem('token', userData.token); // Almacena el token en localStorage
+      dispatch(authenticateUser(userData)); // Almacena los datos del usuario en Redux
+      localStorage.setItem('isAuth', 'true'); // Marca al usuario como autenticado
       setError('');
     } catch (error) {
-      console.error(error.response.data.errors[0].msg);
-      setError(error.response.data.errors[0].msg);
+      setError(error.response?.data?.errors[0]?.msg || 'An error occurred');
     }
   };
 

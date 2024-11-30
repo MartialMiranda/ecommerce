@@ -9,7 +9,6 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <NavLink to="/" className="flex items-center">
-          
           <h1 className="text-3xl font-bold text-gray-800 hover:text-blue-500 transition">
             E-Commerce
           </h1>
@@ -45,10 +44,10 @@ const Navbar = () => {
         {/* Navigation links */}
         <div className="flex items-center space-x-4">
           <NavLink
-            to="/categories"
+            to="/productos"
             className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
           >
-            Categories
+            Productos
           </NavLink>
           <NavLink
             to="/cart"
@@ -60,12 +59,21 @@ const Navbar = () => {
             </span>
           </NavLink>
           {isAuth ? (
-            <NavLink
-              to="/profile"
-              className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
-            >
-              Profile
-            </NavLink>
+            <>
+              <NavLink
+                to="/dashboard"
+                className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
+              >
+                Profile
+              </NavLink>
+              <NavLink
+                to="/mis-direcciones"
+                className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
+              >
+                Mis Direcciones
+              </NavLink>
+              
+            </>
           ) : (
             <>
               <NavLink

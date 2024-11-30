@@ -2,13 +2,13 @@ const Categoria = require('../models/categoria');
 
 const crearCategoria = async (req, res) => {
     try {
-      const { nombre, descripcion, categoriaPadreId } = req.body;
+      const { nombre, descripcion, categoria_padre_id } = req.body;
   
       if (!nombre) {
         return res.status(400).json({ success: false, message: 'El nombre es obligatorio' });
       }
   
-      const categoria = await Categoria.crear(nombre, descripcion, categoriaPadreId || null);
+      const categoria = await Categoria.crear(nombre, descripcion, categoria_padre_id );
   
       if (!categoria) {
         return res.status(500).json({ success: false, message: 'Error al crear la categoría' });
@@ -35,8 +35,8 @@ const obtenerCategorias = async (req, res) => {
 const actualizarCategoria = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, descripcion, categoriaPadreId } = req.body;
-    const categoria = await Categoria.actualizar(id, nombre, descripcion, categoriaPadreId || null);
+    const { nombre, descripcion, categoria_padre_id } = req.body;
+    const categoria = await Categoria.actualizar(id, nombre, descripcion, categoria_padre_id || null);
     res.status(200).json({ success: true, data: categoria });
   } catch (error) {
     console.error(error);
