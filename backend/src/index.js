@@ -33,6 +33,7 @@ app.use('/api/productos', productoRoutes);
 app.use('/uploads', express.static('src/uploads'));
 // Registrar la ruta de direccion_envio
 app.use('/api/direcciones', direccionEnvioRoutes);
+//obtener usuarios perfil
 app.use('/api', usuarioRoutes);
 
 

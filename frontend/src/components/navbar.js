@@ -1,5 +1,5 @@
-import { useSelector } from 'react-redux';
-import { NavLink } from 'react-router-dom';
+import { useSelector } from "react-redux";
+import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -44,12 +44,6 @@ const Navbar = () => {
         {/* Navigation links */}
         <div className="flex items-center space-x-4">
           <NavLink
-            to="/productos"
-            className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
-          >
-            Productos
-          </NavLink>
-          <NavLink
             to="/cart"
             className="relative text-gray-700 hover:text-blue-500 font-medium text-sm transition"
           >
@@ -60,6 +54,13 @@ const Navbar = () => {
           </NavLink>
           {isAuth ? (
             <>
+              <NavLink
+                to="/agregar-producto"
+                className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
+              >
+                Agregar Producto
+              </NavLink>
+
               <NavLink
                 to="/dashboard"
                 className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
@@ -72,7 +73,6 @@ const Navbar = () => {
               >
                 Mis Direcciones
               </NavLink>
-              
             </>
           ) : (
             <>

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const PerfilUsuario = ({ onLogout }) => {
+const PerfilUsuario = ({ onLogout, user  }) => {
   return (
     <div className="bg-gray-100 min-h-screen p-8">
       {/* Encabezado del Perfil */}
@@ -13,8 +13,8 @@ const PerfilUsuario = ({ onLogout }) => {
             className="w-24 h-24 rounded-full border-4 border-white"
           />
           <div>
-            <h2 className="text-white text-3xl font-bold">Nombre del Usuario</h2>
-            <p className="text-blue-200 text-sm">usuario@email.com</p>
+            <h2 className="text-white text-3xl font-bold">{user.nombre || "Nombre del Usuario"}</h2>
+            <p className="text-blue-200 text-sm">{user.email || "usuario@email.com"}</p>
           </div>
         </div>
       </div>
@@ -39,7 +39,7 @@ const PerfilUsuario = ({ onLogout }) => {
           </Link>
          
           <Link
-            to="/productos"
+            to="/mis-productos"
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-green-50 transition duration-200"
           >
             <div className="flex items-center space-x-4">

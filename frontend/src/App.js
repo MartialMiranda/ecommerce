@@ -14,6 +14,9 @@ import AgregarDireccion from './pages/AgregarDireccion';
 import MisDirecciones from './pages/MisDirecciones';
 import { useSelector } from 'react-redux';
 import EditarDireccion from './pages/EditarDireccion';
+import AgregarProducto from './pages/AgregarProducto';
+import MisProductos from './pages/MisProductos';
+import EditarProducto from './pages/EditarProducto';
 
 const PrivateRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -44,6 +47,9 @@ const App = () => {
             <Route path="/agregar-direccion" element={<AgregarDireccion />} />
             <Route path="/mis-direcciones" element={<MisDirecciones />} />
             <Route path="/editar-direccion/:id" element={<EditarDireccion />} />
+            <Route path="/editar-producto/:id" element={<EditarProducto />} />
+            <Route path="/agregar-producto" element={<AgregarProducto />} />
+            <Route path="/mis-productos" element={<MisProductos />} />
           </Route>
 
           {/* Rutas restringidas */}

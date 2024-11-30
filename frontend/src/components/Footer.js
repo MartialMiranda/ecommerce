@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-10 w-full mt-6">

@@ -95,3 +95,22 @@ exports.logout = async (req, res) => {
     });
   }
 };
+
+exports.getProfile = (req, res) => {
+  try {
+    const usuario = req.user; // `req.user` contiene los datos del usuario autenticado
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      usuario, // Devolver los datos del usuario
+    });
+  } catch (error) {
+    console.error("Error al obtener el perfil:", error.message);
+    return res.status(500).json({ message: "Error al obtener el perfil", error: error.message });
+  }
+};
+

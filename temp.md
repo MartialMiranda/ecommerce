@@ -67,8 +67,9 @@ estructure:
  ┣ 📂src
  ┃ ┣ 📂api
  ┃ ┃ ┣ 📜auth.js
- ┃ ┃ ┣ 📜direccion_envio.js
- ┃ ┃ ┗ 📜productos.js
+ ┃ ┃ ┣ 📜direcciones.js
+ ┃ ┃ ┣ 📜productos.js
+ ┃ ┃ ┗ 📜usuarios.js
  ┃ ┣ 📂app
  ┃ ┃ ┗ 📜store.js
  ┃ ┣ 📂components
@@ -77,12 +78,11 @@ estructure:
  ┃ ┃ ┣ 📜Footer.js
  ┃ ┃ ┣ 📜layout.js
  ┃ ┃ ┣ 📜navbar.js
- ┃ ┃ ┣ 📜ProductCard.js
  ┃ ┃ ┣ 📜ProductoCard.jsx
  ┃ ┃ ┣ 📜ProductoDetalles.jsx
  ┃ ┃ ┣ 📜ProductosDestacados.js
  ┃ ┃ ┣ 📜shoppingCart.jsx
- ┃ ┃ ┗ 📜Slider.js
+ ┃ ┃ ┗ 📜Slider.jsx
  ┃ ┣ 📂features
  ┃ ┃ ┗ 📂counter
  ┃ ┃ ┃ ┣ 📜Counter.js
@@ -93,6 +93,7 @@ estructure:
  ┃ ┣ 📂pages
  ┃ ┃ ┣ 📜AgregarDireccion.jsx
  ┃ ┃ ┣ 📜dashboard.js
+ ┃ ┃ ┣ 📜EditarDireccion.js
  ┃ ┃ ┣ 📜home.js
  ┃ ┃ ┣ 📜login.js
  ┃ ┃ ┣ 📜MisDirecciones.jsx

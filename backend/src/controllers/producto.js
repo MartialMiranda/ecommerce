@@ -15,6 +15,7 @@ const crearProducto = async (req, res) => {
       stock,
       categoria_id,
       usuario_id,
+      usuario_id: req.user.id,
       imagenes
     });
 
@@ -98,11 +99,50 @@ const eliminarProducto = async (req, res) => {
   }
 };
 
+const obtenerMisProductos = async (req, res) => {
+  try {
+    console.log('Full user object:', req.user);
+    console.log('User ID:', req.user?.id);
+    console.log('User ID type:', typeof req.user?.id);
+
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ 
+        message: 'No autenticado' 
+      });
+    }
+
+    // Explicitly convert to string first, then to number
+    const usuarioId = Number(String(req.user.id));
+    
+    console.log('Parsed User ID:', usuarioId);
+
+    if (isNaN(usuarioId)) {
+      return res.status(400).json({ 
+        message: 'ID de usuario inválido' 
+      });
+    }
+
+    const productos = await Producto.getMisProductos(usuarioId);
+
+    console.log('Productos encontrados:', productos);
+
+    res.json(productos);
+  } catch (error) {
+    console.error('Error completo al obtener mis productos:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener el producto', 
+      error: error.message,
+      detailedError: error.stack
+    });
+  }
+};
+
 
 module.exports = {
   crearProducto,
   obtenerProductos,
   obtenerProductoPorId,
   actualizarProducto,
-  eliminarProducto
+  eliminarProducto,
+  obtenerMisProductos 
 };

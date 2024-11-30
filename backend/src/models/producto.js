@@ -3,6 +3,7 @@ const BaseDao = require('../dao/baseDao');
 const ImagenProducto = require('../models/imagen_producto');
 const fs = require('fs');
 const path = require('path');
+const db = require('../db');
 
 class Producto {
   constructor() {
@@ -52,6 +53,43 @@ class Producto {
   
     // Eliminar el producto
     return await this.dao.eliminar(id);
+  }
+  // Método para obtener productos del usuario
+  async getMisProductos(usuarioId) {
+    try {
+      const userId = Number(usuarioId);
+      
+      if (!userId || isNaN(userId)) {
+        throw new Error('ID de usuario inválido');
+      }
+  
+      const query = `
+        SELECT 
+          p.*,
+          COALESCE(
+            (
+              SELECT json_agg(
+                json_build_object(
+                  'id', ip.id, 
+                  'url_imagen', ip.url_imagen
+                )
+              )
+              FROM imagen_producto ip
+              WHERE ip.producto_id = p.id
+            ), 
+            '[]'::json
+          ) AS imagenes
+        FROM producto p
+        WHERE p.usuario_id = $1 
+        ORDER BY p.fecha_creacion DESC
+      `;
+      
+      const result = await db.query(query, [userId]);
+      return result.rows;
+    } catch (error) {
+      console.error('Error al obtener mis productos:', error);
+      throw error;
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { obtenerProductos } from "../api/productos";
+import { fetchProductos } from "../api/productos";
+
 import ProductoCard from "../components/ProductoCard";
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -16,16 +17,16 @@ const ProductosDestacados = () => {
   useEffect(() => {
     const cargarProductos = async () => {
       try {
-        const productosObtenidos = await obtenerProductos();
-        if (productosObtenidos && Array.isArray(productosObtenidos)) {
-          setProductos(productosObtenidos);
+        const productosObtenidos = await fetchProductos();
+        if (productosObtenidos && productosObtenidos.data && Array.isArray(productosObtenidos.data)) {
+          setProductos(productosObtenidos.data); // Asegúrate de acceder a la propiedad correcta
         } else {
           setError("Los productos no tienen el formato esperado.");
         }
       } catch (err) {
         setError("Error al cargar los productos.");
       }
-    };
+    };   
 
     cargarProductos();
   }, []);

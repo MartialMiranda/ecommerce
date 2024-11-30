@@ -1,7 +1,6 @@
 // src/routes/usuario.js
 const { Router } = require('express');
 const {
-  obtenerUsuarios,
   obtenerUsuarioPorId,
   actualizarUsuario,
   eliminarUsuario,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { obtenerProductos } from '../api/productos';
+import { fetchProductos } from "../api/productos";
 import { FaHeart, FaFlag, FaStar, FaStarHalfAlt } from 'react-icons/fa';
 import Layout from '../components/layout';
 
@@ -14,27 +14,30 @@ const ProductoDetallesPage = () => {
   useEffect(() => {
     const cargarProducto = async () => {
       try {
-        const productos = await obtenerProductos();
-        const productoEncontrado = productos.find(
-          (prod) => prod.id === parseInt(id)
-        );
-        setProducto(productoEncontrado);
-        if (productoEncontrado) {
-          setImagenSeleccionada(productoEncontrado.imagenes[0]); // Primera imagen por defecto
+        const response = await fetchProductos(); // Asegúrate de que fetchProductos devuelve un array
+        if (response && Array.isArray(response.data)) {
+          const productoEncontrado = response.data.find(
+            (prod) => prod.id === parseInt(id)
+          );
+          
+          if (productoEncontrado) {
+            setProducto(productoEncontrado);
+            setImagenSeleccionada(productoEncontrado.imagenes[0]); // Primera imagen por defecto
+          } else {
+            setError('Producto no encontrado.');
+          }
+        } else {
+          setError('Formato de productos incorrecto.');
         }
       } catch (err) {
         setError('Error al cargar los detalles del producto.');
       }
     };
-
+  
     cargarProducto();
   }, [id]);
+  
 
-  const stockAlert = (()=>{
-    if(producto.stock <= 0){
-        alert("No hay stock disponible");
-    }
-  })
 
   const manejarZoom = (e) => {
     const img = e.target;
