@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
   const { isAuth } = useSelector((state) => state.auth);
+  const { productos } = useSelector((state) => state.carrito);
 
   return (
     <nav className="bg-white shadow-md w-full z-50">
@@ -43,13 +44,10 @@ const Navbar = () => {
 
         {/* Navigation links */}
         <div className="flex items-center space-x-4">
-          <NavLink
-            to="/cart"
-            className="relative text-gray-700 hover:text-blue-500 font-medium text-sm transition"
-          >
-            Cart
-            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-2 shadow-md">
-              3
+          <NavLink to="/carrito" className="relative">
+            Carrito
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2">
+              {productos.length}
             </span>
           </NavLink>
           {isAuth ? (

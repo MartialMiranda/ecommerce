@@ -10,6 +10,7 @@ const db = require('./db');
 const productoRoutes = require('./routes/producto');
 const direccionEnvioRoutes = require('./routes/direccion_envio');
 const usuarioRoutes = require('./routes/usuario');
+const carritoRoutes = require("./routes/carrito");
 
 //import passport middleware
 require('./middlewares/passport-middleware')
@@ -35,6 +36,8 @@ app.use('/uploads', express.static('src/uploads'));
 app.use('/api/direcciones', direccionEnvioRoutes);
 //obtener usuarios perfil
 app.use('/api', usuarioRoutes);
+//agregar un carrito
+app.use("/api/carrito", carritoRoutes);
 
 
 //app start

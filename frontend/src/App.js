@@ -4,19 +4,20 @@ import {
   Routes,
   Route,
   Outlet,
-} from 'react-router-dom';
-import Dashboard from './pages/dashboard';
-import Home from './pages/home';
-import Login from './pages/login';
-import Register from './pages/register';
-import ProductoDetallesPage from './pages/ProductoDetallesPage';
-import AgregarDireccion from './pages/AgregarDireccion';
-import MisDirecciones from './pages/MisDirecciones';
-import { useSelector } from 'react-redux';
-import EditarDireccion from './pages/EditarDireccion';
-import AgregarProducto from './pages/AgregarProducto';
-import MisProductos from './pages/MisProductos';
-import EditarProducto from './pages/EditarProducto';
+} from "react-router-dom";
+import Dashboard from "./pages/dashboard";
+import Home from "./pages/home";
+import Login from "./pages/login";
+import Register from "./pages/register";
+import ProductoDetallesPage from "./pages/ProductoDetallesPage";
+import AgregarDireccion from "./pages/AgregarDireccion";
+import MisDirecciones from "./pages/MisDirecciones";
+import { useSelector } from "react-redux";
+import EditarDireccion from "./pages/EditarDireccion";
+import AgregarProducto from "./pages/AgregarProducto";
+import MisProductos from "./pages/MisProductos";
+import EditarProducto from "./pages/EditarProducto";
+import ShoppingCart from "./components/shoppingCart";
 
 const PrivateRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -50,6 +51,7 @@ const App = () => {
             <Route path="/editar-producto/:id" element={<EditarProducto />} />
             <Route path="/agregar-producto" element={<AgregarProducto />} />
             <Route path="/mis-productos" element={<MisProductos />} />
+            <Route path="/carrito" element={<ShoppingCart />} />
           </Route>
 
           {/* Rutas restringidas */}
