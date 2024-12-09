@@ -1,4 +1,58 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCarrito, removeProducto } from '../redux/slices/carritoSlice';
+
+const ShoppingCart = () => {
+  const dispatch = useDispatch();
+  const { productos, status, error } = useSelector((state) => state.carrito);
+
+  useEffect(() => {
+    dispatch(fetchCarrito());
+  }, [dispatch]);
+
+  const handleRemove = (productoId) => {
+    dispatch(removeProducto({ productoId }));
+  };
+  
+
+  if (status === 'loading') return <div>Cargando carrito...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!productos.length) return <div>El carrito está vacío.</div>;
+
+  return (
+    <div className="shopping-cart">
+      <h2>Tu Carrito</h2>
+      <ul>
+        {productos.map((producto) => (
+          <li key={producto.id} className="flex justify-between">
+            <div>
+              <p>{producto.titulo}</p>
+              <p>Cantidad: {producto.cantidad}</p>
+              <p>Precio: ${producto.precio}</p>
+            </div>
+            <button 
+              onClick={() => handleRemove(producto.id)} 
+              className="bg-red-500 text-white px-4 py-2"
+            >
+              Eliminar
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div>
+        <p>
+          <strong>Total:</strong> $
+          {productos.reduce((acc, prod) => acc + prod.precio * prod.cantidad, 0)}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default ShoppingCart;
+
+
+/* import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCarrito,
@@ -105,3 +159,4 @@ const ShoppingCart = () => {
 };
 
 export default ShoppingCart;
+ */

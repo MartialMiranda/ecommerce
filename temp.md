@@ -24,6 +24,8 @@ estructure:
  ┃ ┃ ┣ 📜categoria.js
  ┃ ┃ ┣ 📜direccion_envio.js
  ┃ ┃ ┗ 📜producto.js
+ ┃ ┣ 📂dao
+ ┃ ┃ ┗ 📜baseDao.js
  ┃ ┣ 📂db
  ┃ ┃ ┗ 📜index.js
  ┃ ┣ 📂middlewares
@@ -67,11 +69,10 @@ estructure:
  ┣ 📂src
  ┃ ┣ 📂api
  ┃ ┃ ┣ 📜auth.js
+ ┃ ┃ ┣ 📜carrito.js
  ┃ ┃ ┣ 📜direcciones.js
  ┃ ┃ ┣ 📜productos.js
  ┃ ┃ ┗ 📜usuarios.js
- ┃ ┣ 📂app
- ┃ ┃ ┗ 📜store.js
  ┃ ┣ 📂components
  ┃ ┃ ┣ 📜Banner.js
  ┃ ┃ ┣ 📜Categorías.js
@@ -92,18 +93,23 @@ estructure:
  ┃ ┃ ┃ ┗ 📜counterSlice.spec.js
  ┃ ┣ 📂pages
  ┃ ┃ ┣ 📜AgregarDireccion.jsx
+ ┃ ┃ ┣ 📜AgregarProducto.jsx
  ┃ ┃ ┣ 📜dashboard.js
  ┃ ┃ ┣ 📜EditarDireccion.js
+ ┃ ┃ ┣ 📜EditarProducto.js
  ┃ ┃ ┣ 📜home.js
  ┃ ┃ ┣ 📜login.js
  ┃ ┃ ┣ 📜MisDirecciones.jsx
+ ┃ ┃ ┣ 📜MisProductos.jsx
  ┃ ┃ ┣ 📜perfil_usuario.js
  ┃ ┃ ┣ 📜ProductoDetallesPage.jsx
  ┃ ┃ ┗ 📜register.js
  ┃ ┣ 📂redux
  ┃ ┃ ┣ 📂slices
  ┃ ┃ ┃ ┣ 📜authSlice.js
- ┃ ┃ ┃ ┗ 📜direccionEnvioSlice.js
+ ┃ ┃ ┃ ┣ 📜carritoSlice.js
+ ┃ ┃ ┃ ┣ 📜direccionEnvioSlice.js
+ ┃ ┃ ┃ ┗ 📜productoSlice.js
  ┃ ┃ ┗ 📜store.js
  ┃ ┣ 📜App.js
  ┃ ┣ 📜index.js

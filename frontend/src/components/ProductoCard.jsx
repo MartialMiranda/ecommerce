@@ -1,45 +1,42 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react'; // Asegúrate de instalar lucide-react
-import { useDispatch } from 'react-redux';
-import { addAlCarrito } from '../redux/slices/carritoSlice';
-import { addProductoAlCarrito } from '../api/carrito';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Heart } from "lucide-react"; // Asegúrate de instalar lucide-react
+import { useDispatch } from "react-redux";
+import { addProducto } from "../redux/slices/carritoSlice";// Usar la acción correcta
 
 const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
   const [liked, setLiked] = useState(false);
-  const [cantidad, setCantidad] = useState(1);  // Estado para la cantidad
+  const [cantidad, setCantidad] = useState(1); // Estado para la cantidad
   const dispatch = useDispatch();
 
-  // Convertir precio a número y manejar casos donde no sea un número válido
   const precioOriginal = Number(producto.precio) || 0;
 
-  // Generar descuento aleatorio solo una vez
   const descuento = esOfertaEspecial
     ? Math.floor(Math.random() * (50 - 10 + 1)) + 10 // Descuentos entre 10% y 50%
     : 0;
 
-  // Calcular precio con descuento
   const precioConDescuento = esOfertaEspecial
     ? precioOriginal * (1 - descuento / 100)
     : precioOriginal;
 
   const handleLike = (e) => {
-    e.preventDefault(); // Evita que el link se active
+    e.preventDefault();
     setLiked(!liked);
   };
 
   const handleAgregarAlCarrito = async () => {
     try {
-      // Supón que el ID del usuario está en el estado global o en un contexto
-      const usuarioId = 1;  // Cambiar esto con el ID del usuario real
-      await addProductoAlCarrito(usuarioId, producto.id, cantidad);
-      
-      // Actualizar el estado de Redux con el nuevo producto en el carrito
-      dispatch(addAlCarrito({ ...producto, cantidad }));
+      const response = await dispatch(
+        addProducto({ productoId: producto.id, cantidad })
+      ).unwrap();
+
+      alert("Producto agregado al carrito");
     } catch (error) {
       console.error("Error al agregar el producto al carrito", error);
+      alert("Ocurrió un error al agregar el producto");
     }
   };
+  
 
   return (
     <div
@@ -52,7 +49,9 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
         className="absolute top-2 right-2 z-10 bg-white/50 rounded-full p-1 hover:bg-white/75 transition"
       >
         <Heart
-          className={`w-6 h-6 ${liked ? 'fill-red-500 text-red-500' : 'text-gray-500'}`}
+          className={`w-6 h-6 ${
+            liked ? "fill-red-500 text-red-500" : "text-gray-500"
+          }`}
         />
       </button>
 
@@ -73,8 +72,6 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
           <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-1">
             {producto.titulo}
           </h3>
-
-          {/* Condición para mostrar precios de oferta */}
           {esOfertaEspecial ? (
             <div className="flex items-center space-x-2">
               <p className="font-medium line-through text-red-500">
@@ -92,9 +89,20 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
         </div>
       </Link>
       <div className="p-4 bg-white">
+        {/* Selector de cantidad */}
+        <div className="flex items-center mb-2">
+          <label className="mr-2">Cantidad:</label>
+          <input
+            type="number"
+            min="1"
+            value={cantidad}
+            onChange={(e) => setCantidad(parseInt(e.target.value, 10))}
+            className="border border-gray-300 rounded-lg px-2 py-1 w-16"
+          />
+        </div>
         <button
           className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg text-center transition"
-          onClick={() => handleAgregarAlCarrito(producto)}
+          onClick={handleAgregarAlCarrito}
         >
           Agregar al carrito
         </button>

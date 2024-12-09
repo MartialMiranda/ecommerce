@@ -1,44 +1,119 @@
-// src/models/Carrito.js
-const BaseDao = require('../dao/baseDao');
-const db = require('../db');
+class Carrito {
+  constructor(usuarioId, productos) {
+    this.usuarioId = usuarioId;
+    this.productos = productos || []; // Lista de productos en el carrito
+  }
+
+  // Agregar un producto al carrito
+  agregarProducto(producto) {
+    this.productos.push(producto);
+  }
+
+  // Eliminar un producto del carrito por ID
+  eliminarProducto(productoId) {
+    this.productos = this.productos.filter(producto => producto.id !== productoId);
+  }
+
+  // Calcular el total del carrito
+  calcularTotal() {
+    return this.productos.reduce((total, producto) => {
+      return total + (producto.precio * producto.cantidad);
+    }, 0);
+  }
+
+  // Verificar si el carrito está vacío
+  estaVacio() {
+    return this.productos.length === 0;
+  }
+}
+
+module.exports = Carrito;
+
+
+
+/* const BaseDao = require("../dao/baseDao");
+const db = require("../db");
 
 class Carrito extends BaseDao {
   constructor() {
-    super('carrito');  // Usamos el nombre de la tabla 'carrito'
+    super("carrito"); // Nombre de la tabla
   }
 
-  // Método específico para obtener todos los elementos del carrito de un usuario
+  // Obtener todos los elementos del carrito de un usuario
   async getAll(usuarioId) {
     const query = `
-      SELECT c.id, c.producto_id, c.cantidad, p.titulo, p.precio
-      FROM carrito c
-      JOIN producto p ON c.producto_id = p.id
-      WHERE c.usuario_id = $1;
-    `;
+            SELECT c.id, c.producto_id, c.cantidad, p.titulo, p.precio, p.imagenes
+            FROM carrito c
+            JOIN producto p ON c.producto_id = p.id
+            WHERE c.usuario_id = $1;
+        `;
     const result = await db.query(query, [usuarioId]);
     return result.rows;
   }
 
-  // Método específico para obtener un elemento del carrito por ID
+  // Obtener un elemento del carrito por su ID
   async getById(id) {
-    return await this.obtenerPorId(id);
+    const query = `
+            SELECT c.id, c.usuario_id, c.producto_id, c.cantidad, p.titulo, p.precio, p.stock
+            FROM carrito c
+            JOIN producto p ON c.producto_id = p.id
+            WHERE c.id = $1;
+        `;
+    const result = await db.query(query, [id]);
+    return result.rows[0];
   }
 
-  // Método para agregar un nuevo producto al carrito
-  async add(carritoItem) {
-    const { usuario_id, producto_id, cantidad } = carritoItem;
-    return await this.crear({ usuario_id, producto_id, cantidad });
+  // Añadir o actualizar un producto en el carrito
+  async addOrUpdate(usuarioId, productoId, cantidad) {
+    const stockQuery = `SELECT stock FROM producto WHERE id = $1;`;
+    const stockResult = await db.query(stockQuery, [productoId]);
+
+    if (stockResult.rows.length === 0) {
+      throw new Error("Producto no encontrado");
+    }
+
+    const stockDisponible = stockResult.rows[0].stock;
+
+    // Validar stock disponible
+    if (cantidad > stockDisponible) {
+      throw new Error("Stock insuficiente para el producto seleccionado");
+    }
+
+    const query = `
+            INSERT INTO carrito (usuario_id, producto_id, cantidad)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (usuario_id, producto_id)
+            DO UPDATE SET cantidad = EXCLUDED.cantidad
+            RETURNING *;
+        `;
+    const result = await db.query(query, [usuarioId, productoId, cantidad]);
+    return result.rows[0];
   }
 
-  // Método para actualizar la cantidad de un producto en el carrito
-  async update(id, carritoItem) {
-    return await this.actualizar(id, carritoItem);
+  // Eliminar un elemento específico del carrito
+  async deleteItem(id) {
+    const query = `DELETE FROM carrito WHERE id = $1 RETURNING id;`;
+    const result = await db.query(query, [id]);
+    return result.rows[0];
   }
 
-  // Método para eliminar un producto del carrito
-  async delete(id) {
-    return await this.eliminar(id);
+  // Vaciar el carrito de un usuario
+  async clear(usuarioId) {
+    const query = `DELETE FROM carrito WHERE usuario_id = $1;`;
+    await db.query(query, [usuarioId]);
+  }
+
+  // Calcular el total del carrito (precio total)
+  async getTotal(usuarioId) {
+    const query = `
+            SELECT SUM(c.cantidad * p.precio) AS total
+            FROM carrito c
+            JOIN producto p ON c.producto_id = p.id
+            WHERE c.usuario_id = $1;
+        `;
+    const result = await db.query(query, [usuarioId]);
+    return result.rows[0]?.total || 0;
   }
 }
 
-module.exports = new Carrito();
+module.exports = new Carrito(); */

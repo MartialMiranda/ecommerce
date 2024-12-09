@@ -6,11 +6,9 @@ const Footer = () => {
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* About Section */}
         <div>
-          <h3 className="text-xl font-bold mb-4">About Us</h3>
+          <h3 className="text-xl font-bold mb-4">Sobre nosotros</h3>
           <p className="text-gray-300">
-            E-Commerce is your one-stop shop for the best deals on products.
-            Find electronics, clothing, home essentials, and more at unbeatable
-            prices.
+          Descubre una amplia variedad de productos a precios increíbles. Compra fácil, rápido y seguro desde la comodidad de tu hogar. Nos esforzamos por ofrecerte la mejor experiencia con opciones de envío rápidas, atención personalizada y métodos de pago seguros. ¡Gracias por elegirnos!
           </p>
         </div>
 
@@ -20,7 +18,7 @@ const Footer = () => {
           <ul className="space-y-2">
             <li>
               <NavLink to="/" className="hover:underline">
-                Home
+                Inicio
               </NavLink>
             </li>
             <li>
@@ -30,12 +28,12 @@ const Footer = () => {
             </li>
             <li>
               <NavLink to="/login" className="hover:underline">
-                Login
+                Reportes
               </NavLink>
             </li>
             <li>
               <NavLink to="/register" className="hover:underline">
-                Register
+                Favoritos
               </NavLink>
             </li>
           </ul>

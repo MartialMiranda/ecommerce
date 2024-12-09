@@ -55,9 +55,43 @@ const eliminarCategoria = async (req, res) => {
   }
 };
 
+
+const obtenerCategoriaById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const categoria = await Categoria.obtenerPorId(id);
+    if (!categoria) {
+      return res.status(404).json({ success: false, message: 'Categoría no encontrada' });
+    }
+    res.status(200).json({ success: true, data: categoria });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error al obtener la categoría' });
+  }
+};
+
+
+const obtenerCategoriaPadreEHijo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const categoria = await Categoria.obtenerCategoriasHijo(id);
+    if (!categoria) {
+      return res.status(404).json({ success: false, message: 'Categoría no encontrada' });
+    }
+    res.status(200).json({ success: true, data: categoria  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error al obtener la categoría y sus hijos' });
+  }
+};
+
+
+
 module.exports = {
   crearCategoria,
   obtenerCategorias,
   actualizarCategoria,
   eliminarCategoria,
+  obtenerCategoriaById,
+  obtenerCategoriaPadreEHijo,
 };

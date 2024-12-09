@@ -1,4 +1,62 @@
-// redux/slices/carritoSlice.js
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { agregarProducto, eliminarProducto, obtenerCarrito } from "../../api/carrito";
+
+
+export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async () => {
+  return await obtenerCarrito();
+});
+
+export const addProducto = createAsyncThunk('carrito/addProducto', async ({ productoId, cantidad }) => {
+  return await agregarProducto(productoId, cantidad);
+});
+
+export const removeProducto = createAsyncThunk('carrito/removeProducto', async ({ productoId }) => {
+  return await eliminarProducto(productoId);
+});
+
+const carritoSlice = createSlice({
+  name: 'carrito',
+  initialState: {
+    productos: [],
+    status: 'idle',
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCarrito.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCarrito.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.productos = action.payload;
+      })
+      .addCase(fetchCarrito.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(addProducto.fulfilled, (state, action) => {
+        const existingProductIndex = state.productos.findIndex(
+          (prod) => prod.id === action.payload.producto.id
+        );
+
+        if (existingProductIndex !== -1) {
+          state.productos[existingProductIndex].cantidad = action.payload.producto.cantidad;
+        } else {
+          state.productos.push(action.payload.producto);
+        }
+      })
+      .addCase(removeProducto.fulfilled, (state, action) => {
+        state.productos = state.productos.filter(
+          (prod) => prod.id !== action.meta.arg.productoId
+        );
+      });
+  },
+});
+export default carritoSlice.reducer;
+
+
+/* // redux/slices/carritoSlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
@@ -101,3 +159,4 @@ const carritoSlice = createSlice({
 });
 
 export default carritoSlice.reducer;
+ */

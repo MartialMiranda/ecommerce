@@ -3,16 +3,16 @@ const DireccionEnvio = require('../models/direccion_envio');
 
 const DireccionEnvioController = {
     getAll: async (req, res) => {
-        console.log('Request headers:', req.headers);
+        //console.log('Request headers:', req.headers);
         try {
             // Con tu configuración de Passport, req.user ya está disponible
             const usuarioId = req.user.id;
             
-            console.log('Obteniendo direcciones para usuario:', usuarioId);
+            //console.log('Obteniendo direcciones para usuario:', usuarioId);
             
             const direcciones = await DireccionEnvio.getAll(usuarioId);
             
-            console.log('Direcciones encontradas:', direcciones);
+            //console.log('Direcciones encontradas:', direcciones);
             
             res.json(direcciones);
         } catch (error) {

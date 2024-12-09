@@ -7,7 +7,6 @@ const Categoria = {
           VALUES ($1, $2, $3)
           RETURNING *;
         `;
-        console.log('Datos enviados:', { nombre, descripcion, categoria_padre_id }); // Añade este log
         const { rows } = await db.query(query, [nombre, descripcion, categoria_padre_id]);
         return rows[0];
       },
@@ -23,6 +22,18 @@ const Categoria = {
     const { rows } = await db.query(query);
     return rows;
   },
+
+  async obtenerCategoriasHijo(id) {
+    const query = `
+      SELECT c.*
+      FROM categoria c
+      WHERE c.categoria_padre_id = $1
+    `;
+    const { rows } = await db.query(query, [id]);
+    return rows;
+  },
+
+  
 
   async actualizar(id, nombre, descripcion, categoria_padre_id) {
     const query = `
