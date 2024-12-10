@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react"; // Asegúrate de instalar lucide-react
-import { useDispatch } from "react-redux";
-import { addProducto } from "../redux/slices/carritoSlice";// Usar la acción correcta
+import { useDispatch, useSelector } from "react-redux";
+import { addProducto } from "../redux/slices/carritoSlice";
 
 const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
   const [liked, setLiked] = useState(false);
   const [cantidad, setCantidad] = useState(1); // Estado para la cantidad
   const dispatch = useDispatch();
+
+  // Accede al estado del carrito
+  const carrito = useSelector((state) => state.carrito.productos);
+
+  // Encuentra la cantidad actual del producto en el carrito
+  const productoEnCarrito = carrito.find((p) => p.id === producto.id);
+  const cantidadActualEnCarrito = productoEnCarrito?.cantidad || 0;
 
   const precioOriginal = Number(producto.precio) || 0;
 
@@ -26,17 +33,21 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
 
   const handleAgregarAlCarrito = async () => {
     try {
+      const cantidadTotal = cantidadActualEnCarrito + cantidad; // Sumar cantidad actual + input
       const response = await dispatch(
-        addProducto({ productoId: producto.id, cantidad: cantidad })
+        addProducto({ productoId: producto.id, cantidad: cantidadTotal })
       ).unwrap();
 
-      alert("Producto agregado al carrito");
+      alert(
+        response.existing
+          ? "Cantidad actualizada en el carrito"
+          : "Producto agregado al carrito"
+      );
     } catch (error) {
       console.error("Error al agregar el producto al carrito", error);
       alert("Ocurrió un error al agregar el producto");
     }
   };
-  
 
   return (
     <div
@@ -96,7 +107,9 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
             type="number"
             min="1"
             value={cantidad}
-            onChange={(e) => setCantidad(parseInt(e.target.value, 10))}
+            onChange={(e) =>
+              setCantidad(Math.max(1, parseInt(e.target.value, 10)))
+            }
             className="border border-gray-300 rounded-lg px-2 py-1 w-16"
           />
         </div>

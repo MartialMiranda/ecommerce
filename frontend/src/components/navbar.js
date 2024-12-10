@@ -1,12 +1,13 @@
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
+import { ShoppingCart } from "lucide-react"; // Asegúrate de instalar lucide-react
 
 const Navbar = () => {
   const { isAuth } = useSelector((state) => state.auth);
   const { productos } = useSelector((state) => state.carrito);
 
   return (
-    <nav className="fixed bg-[rgba(255,255,255,1)] shadow-md w-full z-50 ">
+    <nav className="fixed bg-white shadow-md w-full z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <NavLink to="/" className="flex items-center">
@@ -20,7 +21,7 @@ const Navbar = () => {
           <div className="relative w-full max-w-md">
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Buscar productos..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <span className="absolute inset-y-0 left-3 flex items-center">
@@ -43,13 +44,7 @@ const Navbar = () => {
         </div>
 
         {/* Navigation links */}
-        <div className="flex items-center space-x-4">
-          <NavLink to="/carrito" className="relative">
-            Carrito
-            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-2">
-              {productos.length}
-            </span>
-          </NavLink>
+        <div className="flex items-center space-x-6">
           {isAuth ? (
             <>
               <NavLink
@@ -58,18 +53,25 @@ const Navbar = () => {
               >
                 Agregar Producto
               </NavLink>
-
               <NavLink
                 to="/dashboard"
                 className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
               >
-                Profile
+                Mi Perfil
               </NavLink>
               <NavLink
                 to="/mis-direcciones"
                 className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
               >
                 Mis Direcciones
+              </NavLink>
+              <NavLink to="/carrito" className="relative flex items-center">
+                <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-blue-500 transition" />
+                {productos.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 shadow-lg">
+                    {productos.length}
+                  </span>
+                )}
               </NavLink>
             </>
           ) : (
@@ -78,13 +80,13 @@ const Navbar = () => {
                 to="/login"
                 className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
               >
-                Login
+                Iniciar Sesión
               </NavLink>
               <NavLink
                 to="/register"
                 className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
               >
-                Register
+                Registrarse
               </NavLink>
             </>
           )}
@@ -96,7 +98,7 @@ const Navbar = () => {
         <div className="relative w-full">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Buscar..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <span className="absolute inset-y-0 left-3 flex items-center">

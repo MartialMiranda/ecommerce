@@ -5,6 +5,7 @@ import {
   removeProducto,
   addProducto,
 } from "../redux/slices/carritoSlice";
+import Layout from "../components/layout";
 
 const ShoppingCart = () => {
   const dispatch = useDispatch();
@@ -70,6 +71,7 @@ const ShoppingCart = () => {
   );
 
   return (
+    <Layout>
     <div className="shopping-cart bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Tu Carrito</h2>
       <ul className="space-y-4">
@@ -126,6 +128,7 @@ const ShoppingCart = () => {
         </p>
       </div>
     </div>
+    </Layout>
   );
 };
 
