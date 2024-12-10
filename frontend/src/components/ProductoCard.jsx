@@ -27,7 +27,7 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
   const handleAgregarAlCarrito = async () => {
     try {
       const response = await dispatch(
-        addProducto({ productoId: producto.id, cantidad })
+        addProducto({ productoId: producto.id, cantidad: cantidad })
       ).unwrap();
 
       alert("Producto agregado al carrito");

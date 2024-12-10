@@ -29,7 +29,7 @@ class CarritoDao {
       INSERT INTO carrito (usuario_id, producto_id, cantidad)
       VALUES ($1, $2, $3)
       ON CONFLICT (usuario_id, producto_id) DO UPDATE
-      SET cantidad = carrito.cantidad + $3
+      SET cantidad = $3
       RETURNING *;
     `;
     const result = await db.query(query, [usuarioId, productoId, cantidad]);

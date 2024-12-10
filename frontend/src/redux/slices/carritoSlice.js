@@ -1,162 +1,97 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { agregarProducto, eliminarProducto, obtenerCarrito } from "../../api/carrito";
+import { obtenerCarrito, agregarProducto, eliminarProducto } from "../../api/carrito";
 
-
-export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async () => {
-  return await obtenerCarrito();
+// Thunks asincrónicos
+export const fetchCarrito = createAsyncThunk("carrito/fetchCarrito", async (_, { rejectWithValue }) => {
+  try {
+    const productos = await obtenerCarrito(); // Solo obtiene productos
+    return productos;
+  } catch (error) {
+    return rejectWithValue(error.message || "Error al obtener el carrito");
+  }
 });
 
-export const addProducto = createAsyncThunk('carrito/addProducto', async ({ productoId, cantidad }) => {
-  return await agregarProducto(productoId, cantidad);
-});
+export const addProducto = createAsyncThunk(
+  "carrito/addProducto",
+  async ({ productoId, cantidad }, { rejectWithValue }) => {
+    try {
+      const response = await agregarProducto(productoId, cantidad);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al agregar el producto");
+    }
+  }
+);
 
-export const removeProducto = createAsyncThunk('carrito/removeProducto', async ({ productoId }) => {
-  return await eliminarProducto(productoId);
-});
+export const removeProducto = createAsyncThunk(
+  "carrito/removeProducto",
+  async ({ productoId }, { rejectWithValue }) => {
+    try {
+      await eliminarProducto(productoId);
+      return productoId;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al eliminar el producto");
+    }
+  }
+);
 
+// Slice del carrito
 const carritoSlice = createSlice({
-  name: 'carrito',
+  name: "carrito",
   initialState: {
     productos: [],
-    status: 'idle',
+    status: "idle", // "idle", "loading", "succeeded", "failed"
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Obtener carrito
       .addCase(fetchCarrito.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
       .addCase(fetchCarrito.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.productos = action.payload;
       })
       .addCase(fetchCarrito.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(addProducto.fulfilled, (state, action) => {
-        const existingProductIndex = state.productos.findIndex(
-          (prod) => prod.id === action.payload.producto.id
-        );
-
-        if (existingProductIndex !== -1) {
-          state.productos[existingProductIndex].cantidad = action.payload.producto.cantidad;
-        } else {
-          state.productos.push(action.payload.producto);
-        }
-      })
-      .addCase(removeProducto.fulfilled, (state, action) => {
-        state.productos = state.productos.filter(
-          (prod) => prod.id !== action.meta.arg.productoId
-        );
-      });
-  },
-});
-export default carritoSlice.reducer;
-
-
-/* // redux/slices/carritoSlice.js
-
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  fetchCarrito,
-  addProductoAlCarrito,
-  updateProductoCarrito,
-  removeProductoDelCarrito,
-} from "../../api/carrito";
-
-// Obtener los productos en el carrito
-export const getCarrito = createAsyncThunk(
-  "carrito/getCarrito",
-  async (token, { rejectWithValue }) => {
-    try {
-      const response = await fetchCarrito(token);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-
-// Agregar un producto al carrito
-export const addAlCarrito = createAsyncThunk(
-  "carrito/addAlCarrito",
-  async ({ productoId, cantidad, token }, { rejectWithValue }) => {
-    try {
-      const response = await addProductoAlCarrito(productoId, cantidad, token);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-
-// Actualizar la cantidad de un producto en el carrito
-export const updateCantidadCarrito = createAsyncThunk(
-  "carrito/updateCantidadCarrito",
-  async ({ productoId, cantidad, token }, { rejectWithValue }) => {
-    try {
-      const response = await updateProductoCarrito(productoId, cantidad, token);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-
-// Eliminar un producto del carrito
-export const removeDelCarrito = createAsyncThunk(
-  "carrito/removeDelCarrito",
-  async ({ productoId, token }, { rejectWithValue }) => {
-    try {
-      await removeProductoDelCarrito(productoId, token);
-      return productoId;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-
-const carritoSlice = createSlice({
-  name: "carrito",
-  initialState: {
-    productos: [],
-    loading: false,
-    error: null,
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(getCarrito.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getCarrito.fulfilled, (state, action) => {
-        console.log("Productos recibidos en Redux:", action.payload); // Verificar el payload
-        state.loading = false;
-        state.productos = action.payload;  // Verificar si productos se asignan correctamente
-      })      
-      .addCase(getCarrito.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.payload;
       })
-      .addCase(addAlCarrito.fulfilled, (state, action) => {
-        state.productos.push(action.payload);
+
+      //agregar producto
+      .addCase(addProducto.pending, (state) => {
+        state.status = "loading";
       })
-      .addCase(updateCantidadCarrito.fulfilled, (state, action) => {
-        const index = state.productos.findIndex(
-          (producto) => producto.id === action.payload.id
+      .addCase(addProducto.fulfilled, (state, action) => {
+        const producto = action.payload;
+        const existingProductIndex = state.productos.findIndex(
+          (prod) => prod.id === producto.id
         );
-        if (index !== -1) {
-          state.productos[index] = action.payload;
+      
+        if (existingProductIndex !== -1) {
+          // Actualizamos el producto existente
+          state.productos[existingProductIndex] = {
+            ...state.productos[existingProductIndex],
+            cantidad: producto.cantidad,
+          };
+        } else {
+          // Agregamos un nuevo producto
+          state.productos.push(producto);
         }
+      
+        state.status = "succeeded";
+      })      
+      .addCase(addProducto.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       })
-      .addCase(removeDelCarrito.fulfilled, (state, action) => {
-        state.productos = state.productos.filter(
-          (producto) => producto.id !== action.payload
-        );
+      // Eliminar producto
+      .addCase(removeProducto.fulfilled, (state, action) => {
+        const productoId = action.payload;
+        state.productos = state.productos.filter((prod) => prod.id !== productoId);
       });
   },
 });
 
 export default carritoSlice.reducer;
- */
