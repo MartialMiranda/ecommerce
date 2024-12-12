@@ -1,56 +1,40 @@
 @startuml
-skinparam componentStyle rectangle
+skinparam dpi 300
 
-title Diagrama de Despliegue - Ecommerce Full Stack
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2020.12.15
+!include url AzurePuml/AzureCommon.puml
+!include url AzurePuml/Network/AzureVirtualNetwork.puml
+!include url AzurePuml/Compute/AzureVirtualMachines.puml
+!include url AzurePuml/Storage/AzureStorageAccount.puml
+!include url AzurePuml/General/AzureMonitor.puml
 
-node "Servidor Backend" as backend {
-    [server.js] <<Main Script>>
-    component "Express.js" <<Framework>> {
-        [routes/] <<Directorio>>  
-        [controllers/] <<Directorio>>
-        [models/] <<Directorio>>
-        [middlewares/] <<Directorio>>
-    }
-    [node_modules/] <<Directorio Dependencias>>
-    database "PostgreSQL" as db {
-        [ecommerce] <<Base de Datos>>
-    }
+title Infraestructura Lógica y Física en Azure
+
+AzureVirtualNetwork("vnet", "TechRetail-VNet", "Red Virtual")
+AzureVirtualMachines("vm_dc", "VM-DC", "Controlador de Dominio, DNS, y NAP")
+AzureVirtualMachines("vm_iis_sql", "VM-IIS-SQL", "Servidor IIS y SQL")
+AzureVirtualMachines("vm_monitor", "VM-Monitor", "Nodo Secundario y Monitorización")
+AzureVirtualMachines("vm_cliente", "VM-Cliente", "Cliente Remoto")
+AzureMonitor("monitor", "Azure Monitor", "Herramientas de Monitorización")
+
+' Conexiones lógicas'
+vnet -[hidden]-> vm_dc
+vnet -[hidden]-> vm_iis_sql
+vnet -[hidden]-> vm_monitor
+vnet -[hidden]-> vm_cliente
+
+' Detalles de configuración'
+AzureStorageAccount("storage_account", "Almacenamiento Clúster Witness", "Soporte para el clúster de conmutación por error")
+vm_dc --> storage_account : "\\ClusterWitness"
+
+' Seguridad y conexión'
+package "Subred Pública" {
+  vm_dc
+  vm_iis_sql
+  vm_monitor
 }
-
-node "Servidor Frontend" as frontend {
-    [public/] <<Directorio Estático>>
-    component "React.js" <<Framework>> {
-        [App.js] <<Componente Raíz>>
-        [components/] <<Directorio>>
-        [pages/] <<Directorio>>
-        [hooks/] <<Directorio>>
-        [store/] <<Directorio Redux>>
-    }
-    [node_modules/] <<Directorio Dependencias>>
+package "Subred Cliente" {
+  vm_cliente
 }
-
-node "Cliente (Navegador)" as client {
-    [index.html] <<HTML>>
-    [main.js] <<JavaScript>>
-}
-
-node "Control de Versiones (GitHub)" as scm {
-    [branch main] <<Rama Principal>>
-    [branch feature-X] <<Rama Alterna>>
-}
-
-' Relaciones entre nodos
-backend --> db : CRUD Operaciones
-frontend --> backend : API REST (HTTP/JSON)
-client --> frontend : Descarga Recursos (HTML, CSS, JS)
-scm --> backend : Subida de Cambios
-scm --> frontend : Subida de Cambios
-
-' Descripción de carpetas y dependencias clave
-note "Backend utiliza dependencias: bcrypt, express, dotenv, pg, multer, etc." as N1
-backend .. N1
-
-note "Frontend utiliza dependencias: react, axios, redux, react-router-dom, etc." as N2
-frontend .. N2
 
 @enduml

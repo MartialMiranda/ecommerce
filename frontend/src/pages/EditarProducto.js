@@ -2,12 +2,17 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { getProductoById, updateProductoById } from "../redux/slices/productoSlice";
+import {
+  getProductoById,
+  updateProductoById,
+  getCategorias,
+} from "../redux/slices/productoSlice";
 
 const EditarProducto = () => {
   const { id } = useParams(); // Obtenemos el id de la URL
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { categorias, loading } = useSelector((state) => state.producto);
 
   const [producto, setProducto] = useState({
     titulo: "",
@@ -17,13 +22,23 @@ const EditarProducto = () => {
     categoria_id: "",
   });
 
-  const { producto: productoActual, loadingProducto, error } = useSelector((state) => state.producto);
+  const {
+    producto: productoActual,
+    loadingProducto,
+    error,
+  } = useSelector((state) => state.producto);
 
   useEffect(() => {
     if (id) {
       dispatch(getProductoById(id));
     }
   }, [id, dispatch]);
+
+  useEffect(() => {
+    if (!categorias || categorias.length === 0) {
+      dispatch(getCategorias());
+    }
+  }, [dispatch, categorias]);
 
   useEffect(() => {
     if (productoActual) {
@@ -43,6 +58,7 @@ const EditarProducto = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Datos enviados:", producto);
     dispatch(updateProductoById({ id, productoData: producto }));
     navigate("/mis-productos");
   };
@@ -57,7 +73,10 @@ const EditarProducto = () => {
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="titulo" className="block text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="titulo"
+            className="block text-sm font-medium text-gray-600 mb-1"
+          >
             Titulo
           </label>
           <input
@@ -70,7 +89,10 @@ const EditarProducto = () => {
           />
         </div>
         <div>
-          <label htmlFor="descripcion" className="block text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="descripcion"
+            className="block text-sm font-medium text-gray-600 mb-1"
+          >
             Descripción
           </label>
           <input
@@ -83,7 +105,10 @@ const EditarProducto = () => {
           />
         </div>
         <div>
-          <label htmlFor="precio" className="block text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="precio"
+            className="block text-sm font-medium text-gray-600 mb-1"
+          >
             Precio
           </label>
           <input
@@ -96,7 +121,10 @@ const EditarProducto = () => {
           />
         </div>
         <div>
-          <label htmlFor="stock" className="block text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="stock"
+            className="block text-sm font-medium text-gray-600 mb-1"
+          >
             Stock
           </label>
           <input
@@ -109,17 +137,27 @@ const EditarProducto = () => {
           />
         </div>
         <div>
-          <label htmlFor="categoria_id" className="block text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="categoria_id"
+            className="block text-sm font-medium text-gray-600 mb-1"
+          >
             Categoría
           </label>
-          <input
-            id="categoria_id"
-            type="text"
-            name="categoria_id"
-            value={producto.categoria_id}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-          />
+          <select
+              id="categoria_id"
+              name="categoria_id"
+              value={producto.categoria_id}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Seleccione una categoría</option>
+              {(categorias || []).map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nombre}
+                </option>
+              ))}
+            </select>
+          
         </div>
         <button
           type="submit"

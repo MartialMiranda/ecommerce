@@ -6,6 +6,7 @@ import {
   updateProducto,
   deleteProducto,
   fetchMisProductos,
+  fetchCategorias,
 } from "../../api/productos";
 
 export const getProductos = createAsyncThunk(
@@ -19,11 +20,15 @@ export const getProductos = createAsyncThunk(
     }
   }
 );
+
 // Estado inicial
 const initialState = {
-  productos: [], // Lista general de productos
-  misProductos: [], // Lista de productos del usuario
+  productos: [],
+  misProductos: [],
+  categorias: [],
+  producto: null,
   loading: false,
+  loadingProducto: false,
   error: null,
 };
 
@@ -36,6 +41,20 @@ export const createProducto = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data || "Error al crear el producto"
+      );
+    }
+  }
+);
+export const getCategorias = createAsyncThunk(
+  "producto/getCategorias",
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth; // Obtén el token del estado de autenticación
+      const response = await fetchCategorias(token);
+      return response.data; // Supongo que la respuesta devuelve un array de categorías
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error al obtener categorías"
       );
     }
   }
@@ -96,12 +115,6 @@ export const deleteProductoById = createAsyncThunk(
 const productoSlice = createSlice({
   name: "producto",
   initialState,
-  reducers: {
-    productos: [],
-    producto: null,
-    loading: false,
-    error: null,
-  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -145,7 +158,7 @@ const productoSlice = createSlice({
       // Editar producto
       .addCase(updateProductoById.fulfilled, (state, action) => {
         const index = state.productos.findIndex(
-          (p) => p.id === action.payload.id
+          (producto) => producto.id === action.payload.id
         );
         if (index !== -1) {
           state.productos[index] = action.payload;
@@ -167,8 +180,21 @@ const productoSlice = createSlice({
       // Eliminar producto
       .addCase(deleteProductoById.fulfilled, (state, action) => {
         state.productos = state.productos.filter(
-          (p) => p.id !== action.payload.id
+          (producto) => producto.id !== action.payload.id
         );
+      })
+      // Categorías
+      .addCase(getCategorias.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getCategorias.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categorias = action.payload;
+      })
+      .addCase(getCategorias.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

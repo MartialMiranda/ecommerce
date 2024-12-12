@@ -91,6 +91,11 @@ class Producto {
       throw error;
     }
   }
+  async getCategorias() {
+    const query = `SELECT id, nombre FROM categoria ORDER BY nombre ASC;`;
+    const result = await db.query(query);
+    return result.rows;
+  }
 }
 
 module.exports = new Producto();

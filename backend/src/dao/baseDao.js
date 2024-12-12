@@ -17,7 +17,7 @@ class BaseDao {
   }
 
   async obtenerTodos() {
-    const query = `SELECT * FROM ${this.tableName};`;
+    const query = `SELECT * FROM ${this.tableName} ORDER BY fecha_creacion DESC;`;
     const result = await db.query(query);
     return result.rows;
   }

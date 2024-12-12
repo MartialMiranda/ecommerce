@@ -72,7 +72,7 @@ const ShoppingCart = () => {
 
   return (
     <Layout>
-    <div className="shopping-cart bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+    <div className="shopping-cart bg-gray-100 p-6 rounded-lg shadow-md max-w-4xl mx-auto mt-4">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Tu Carrito</h2>
       <ul className="space-y-4">
         {productos.map((producto) => (

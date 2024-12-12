@@ -7,7 +7,8 @@ const {
   obtenerProductoPorId,
   actualizarProducto,
   eliminarProducto,
-  obtenerMisProductos
+  obtenerMisProductos,
+  obtenerCategorias
 } = require('../controllers/producto');
 const passport = require('passport');
 
@@ -16,6 +17,7 @@ const userAuth = passport.authenticate('jwt', { session: false });
 const router = express.Router();
 
 router.get('/',  obtenerProductos);
+router.get('/categorias',userAuth, obtenerCategorias);
 router.get('/mis-productos', userAuth, obtenerMisProductos);
 router.get('/:id',  obtenerProductoPorId);
 router.post('/', upload.array('imagenes', 5), userAuth, crearProducto);
