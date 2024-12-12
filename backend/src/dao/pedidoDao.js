@@ -39,6 +39,35 @@ class PedidoDao {
     const result = await db.query(query, [pedidoId, estado]);
     return result.rows[0];
   }
+
+  // Obtener todos los pedidos de un usuario
+  async obtenerPedidosPorUsuario(usuarioId) {
+    const query = `SELECT * FROM ${this.tableName} WHERE usuario_id = $1 ORDER BY fecha_pedido ASC;`;
+    const result = await db.query(query, [usuarioId]);
+    return result.rows;
+  }
+
+  // Obtener detalles de un pedido
+  async obtenerDetallesPedido(pedidoId) {
+    const query = `
+      SELECT dp.producto_id, dp.cantidad, dp.precio_unitario, p.titulo, p.imagenes
+      FROM ${this.detalleTableName} dp
+      JOIN producto p ON dp.producto_id = p.id
+      WHERE dp.pedido_id = $1;
+    `;
+    const result = await db.query(query, [pedidoId]);
+    return result.rows;
+  }
+
+  // Eliminar un pedido (y sus detalles)
+  async eliminarPedido(pedidoId) {
+    const detalleQuery = `DELETE FROM ${this.detalleTableName} WHERE pedido_id = $1;`;
+    const pedidoQuery = `DELETE FROM ${this.tableName} WHERE id = $1;`;
+
+    await db.query(detalleQuery, [pedidoId]);
+    await db.query(pedidoQuery, [pedidoId]);
+    return { mensaje: 'Pedido eliminado con éxito' };
+  }
 }
 
 module.exports = new PedidoDao();

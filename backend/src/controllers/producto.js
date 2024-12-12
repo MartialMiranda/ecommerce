@@ -136,10 +136,9 @@ const eliminarProducto = async (req, res) => {
 
 const obtenerMisProductos = async (req, res) => {
   try {
-    console.log("Full user object:", req.user);
-    console.log("User ID:", req.user?.id);
-    console.log("User ID type:", typeof req.user?.id);
-
+    //console.log("Full user object:", req.user);
+    //console.log("User ID:", req.user?.id);
+    //console.log("User ID type:", typeof req.user?.id);
     if (!req.user || !req.user.id) {
       return res.status(401).json({
         message: "No autenticado",
@@ -149,7 +148,7 @@ const obtenerMisProductos = async (req, res) => {
     // Explicitly convert to string first, then to number
     const usuarioId = Number(String(req.user.id));
 
-    console.log("Parsed User ID:", usuarioId);
+    //console.log("Parsed User ID:", usuarioId);
 
     if (isNaN(usuarioId)) {
       return res.status(400).json({
@@ -159,7 +158,7 @@ const obtenerMisProductos = async (req, res) => {
 
     const productos = await Producto.getMisProductos(usuarioId);
 
-    console.log("Productos encontrados:", productos);
+    //console.log("Productos encontrados:", productos);
 
     res.json(productos);
   } catch (error) {
