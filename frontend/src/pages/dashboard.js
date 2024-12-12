@@ -46,6 +46,7 @@ const Dashboard = () => {
       <Layout>
         {/* Pasa los datos del usuario al componente PerfilUsuario */}
         <PerfilUsuario onLogout={logout} user={user} />
+        console.log(user);
       </Layout>
     </div>
   );

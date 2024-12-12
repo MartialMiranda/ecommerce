@@ -5,6 +5,8 @@ import { addProducto } from "../redux/slices/carritoSlice";
 import { fetchProductos } from "../api/productos";
 import { FaHeart, FaFlag, FaStar, FaStarHalfAlt } from "react-icons/fa";
 import Layout from "../components/layout";
+import { fetchProtectedInfo } from "../api/auth";
+import { Link } from "react-router-dom";
 
 const ProductoDetallesPage = () => {
   const { id } = useParams();
@@ -12,11 +14,28 @@ const ProductoDetallesPage = () => {
   const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
   const [error, setError] = useState(null);
   const [calificacion, setCalificacion] = useState(0);
-  const [cantidad, setCantidad] = useState(1); // Estado para la cantidad
+  const [cantidad, setCantidad] = useState(1);
   const dispatch = useDispatch();
+  const [user, setUser] = useState(null);
 
-  // Accede al estado del carrito
+  const protectedInfo = async () => {
+    try {
+      const response = await fetchProtectedInfo();
+      setUser(response.data.usuario); // Ajusta la propiedad según la respuesta del backend
+    } catch (error) {
+      console.error(
+        "Error al obtener datos protegidos:",
+        error.response || error.message
+      );
+    }
+  };
+  useEffect(() => {
+    protectedInfo();
+  }, []);
+
+  // Accede al estado del carrito y usuario logeado
   const carrito = useSelector((state) => state.carrito.productos);
+  const usuarioLogeado = user?.id;
 
   useEffect(() => {
     const cargarProducto = async () => {
@@ -29,7 +48,7 @@ const ProductoDetallesPage = () => {
 
           if (productoEncontrado) {
             setProducto(productoEncontrado);
-            setImagenSeleccionada(productoEncontrado.imagenes[0]); // Primera imagen por defecto
+            setImagenSeleccionada(productoEncontrado.imagenes[0]);
           } else {
             setError("Producto no encontrado.");
           }
@@ -47,7 +66,7 @@ const ProductoDetallesPage = () => {
   const handleAgregarAlCarrito = async () => {
     try {
       const productoEnCarrito = carrito.find((p) => p.id === producto.id);
-      const cantidadTotal = (productoEnCarrito?.cantidad || 0) + cantidad; // Sumar cantidad actual + input
+      const cantidadTotal = (productoEnCarrito?.cantidad || 0) + cantidad;
 
       const response = await dispatch(
         addProducto({ productoId: producto.id, cantidad: cantidadTotal })
@@ -64,7 +83,6 @@ const ProductoDetallesPage = () => {
     }
   };
 
-  //zoom imagen
   const manejarZoom = (e) => {
     const img = e.target;
     const { offsetX, offsetY } = e.nativeEvent;
@@ -90,11 +108,12 @@ const ProductoDetallesPage = () => {
     );
   }
 
+  const esProductoDelUsuario = producto.usuario_id === usuarioLogeado;
+
   return (
     <Layout>
       <div className="container mx-auto p-6 bg-white">
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Sección de imágenes */}
           <div className="lg:w-2/5 flex flex-col items-center">
             <div className="relative w-full h-96 border rounded-md overflow-hidden">
               <img
@@ -105,19 +124,19 @@ const ProductoDetallesPage = () => {
                 onMouseLeave={quitarZoom}
               />
               <div className="absolute top-4 right-4 flex flex-col gap-2">
-              <button
-                title="Marcar como favorito"
-                className="p-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition"
-              >
-                <FaHeart size={20} />
-              </button>
-              <button
-                title="Reportar"
-                className="p-2 bg-gray-500 text-white rounded-full shadow-md hover:bg-gray-600 transition"
-              >
-                <FaFlag size={20} />
-              </button>
-            </div>
+                <button
+                  title="Marcar como favorito"
+                  className="p-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition"
+                >
+                  <FaHeart size={20} />
+                </button>
+                <button
+                  title="Reportar"
+                  className="p-2 bg-gray-500 text-white rounded-full shadow-md hover:bg-gray-600 transition"
+                >
+                  <FaFlag size={20} />
+                </button>
+              </div>
             </div>
             <div className="flex gap-4 mt-4">
               {producto.imagenes.map((img, index) => (
@@ -134,7 +153,6 @@ const ProductoDetallesPage = () => {
             </div>
           </div>
 
-          {/* Detalles del producto */}
           <div className="lg:w-3/5 flex flex-col gap-6">
             <h1 className="text-3xl font-semibold text-gray-800">
               {producto.titulo}
@@ -147,27 +165,37 @@ const ProductoDetallesPage = () => {
               <span className="font-medium">Stock:</span> {producto.stock}
             </p>
 
-            {/* Selector de cantidad */}
-            <div className="flex items-center gap-4">
-              <label>Cantidad:</label>
-              <input
-                type="number"
-                min="1"
-                value={cantidad}
-                onChange={(e) =>
-                  setCantidad(Math.max(1, parseInt(e.target.value, 10)))
-                }
-                className="border border-gray-300 rounded-lg px-2 py-1 w-16"
-              />
-            </div>
-
-            {/* Botón de acción */}
-            <button
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition"
-              onClick={handleAgregarAlCarrito}
-            >
-              Agregar al carrito
-            </button>
+            {esProductoDelUsuario ? (
+              <div className="flex space-x-4 mt-4 md:mt-0">
+                <Link
+                  to={`/editar-producto/${producto.id}`}
+                  className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition duration-300"
+                >
+                  Editar
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-4">
+                  <label>Cantidad:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={cantidad}
+                    onChange={(e) =>
+                      setCantidad(Math.max(1, parseInt(e.target.value, 10)))
+                    }
+                    className="border border-gray-300 rounded-lg px-2 py-1 w-16"
+                  />
+                </div>
+                <button
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition"
+                  onClick={handleAgregarAlCarrito}
+                >
+                  Agregar al carrito
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
