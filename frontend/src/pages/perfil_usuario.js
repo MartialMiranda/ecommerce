@@ -52,7 +52,7 @@ const PerfilUsuario = ({ onLogout, user  }) => {
           </Link>
 
           <Link
-            to="/compras"
+            to="/pedidos"
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-yellow-50 transition duration-200"
           >
             <div className="flex items-center space-x-4">
@@ -73,6 +73,19 @@ const PerfilUsuario = ({ onLogout, user  }) => {
                 <span className="text-purple-500 text-xl">🕒</span>
               </div>
               <span className="text-gray-800 font-medium">Historial</span>
+            </div>
+            <span className="text-purple-500">➡️</span>
+          </Link>
+
+          <Link
+            to="/pedidos"
+            className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-purple-50 transition duration-200"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-100 p-3 rounded-full">
+                <span className="text-purple-500 text-xl">📦</span>
+              </div>
+              <span className="text-gray-800 font-medium">Pedidos</span>
             </div>
             <span className="text-purple-500">➡️</span>
           </Link>

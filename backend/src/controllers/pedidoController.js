@@ -5,7 +5,7 @@ class PedidoController {
   // Crear un nuevo pedido (ya existente)
   async crearPedido(req, res) {
     const { direccionEnvioId, metodoEnvio, costoEnvio } = req.body;
-    console.log("Datos recibidos del pedido:", req.body);
+    //console.log("Datos recibidos del pedido:", req.body);
     try {
       const usuarioId = req.user.id;
 

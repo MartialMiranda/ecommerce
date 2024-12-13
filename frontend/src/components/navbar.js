@@ -1,6 +1,9 @@
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
-import { ShoppingCart } from "lucide-react"; // Asegúrate de instalar lucide-react
+import {
+  ShoppingCart,
+  User,
+} from "lucide-react";
 
 const Navbar = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -53,22 +56,23 @@ const Navbar = () => {
               >
                 Agregar Producto
               </NavLink>
-              <NavLink
-                to="/dashboard"
-                className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
-              >
-                Mi Perfil
-              </NavLink>
+
               <NavLink
                 to="/mis-direcciones"
                 className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
               >
                 Mis Direcciones
               </NavLink>
+              <NavLink
+                to="/dashboard"
+                className="text-gray-700 hover:text-blue-500 font-medium text-sm transition"
+              >
+                <User className="w-6 h-6 text-gray-700 hover:text-blue-500 transition" />
+              </NavLink>
               <NavLink to="/carrito" className="relative flex items-center">
                 <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-blue-500 transition" />
-                {productos.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 shadow-lg">
+                {productos.length >= 0 && (
+                  <span className="absolute -top-4 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 shadow-lg">
                     {productos.length}
                   </span>
                 )}

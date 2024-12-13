@@ -39,7 +39,9 @@ export const updateEstadoPedido = createAsyncThunk(
       const pedido = await cambiarEstadoPedido(pedidoId, estado);
       return pedido;
     } catch (error) {
-      return rejectWithValue(error.message || "Error al cambiar el estado del pedido");
+      return rejectWithValue(
+        error.message || "Error al cambiar el estado del pedido"
+      );
     }
   }
 );
@@ -51,7 +53,9 @@ export const fetchDetallesPedido = createAsyncThunk(
       const detalles = await obtenerDetallesPedido(pedidoId);
       return detalles;
     } catch (error) {
-      return rejectWithValue(error.message || "Error al obtener los detalles del pedido");
+      return rejectWithValue(
+        error.message || "Error al obtener los detalles del pedido"
+      );
     }
   }
 );
@@ -73,7 +77,7 @@ const pedidoSlice = createSlice({
   name: "pedido",
   initialState: {
     pedidos: [],
-    detalles: null,
+    detalles: [],
     status: "idle", // "idle", "loading", "succeeded", "failed"
     error: null,
   },
@@ -109,7 +113,9 @@ const pedidoSlice = createSlice({
       // Cambiar estado del pedido
       .addCase(updateEstadoPedido.fulfilled, (state, action) => {
         const pedidoActualizado = action.payload;
-        const index = state.pedidos.findIndex((p) => p.id === pedidoActualizado.id);
+        const index = state.pedidos.findIndex(
+          (p) => p.id === pedidoActualizado.id
+        );
         if (index !== -1) {
           state.pedidos[index] = pedidoActualizado;
         }
@@ -123,7 +129,9 @@ const pedidoSlice = createSlice({
       // Eliminar pedido
       .addCase(deletePedido.fulfilled, (state, action) => {
         const pedidoId = action.payload;
-        state.pedidos = state.pedidos.filter((pedido) => pedido.id !== pedidoId);
+        state.pedidos = state.pedidos.filter(
+          (pedido) => pedido.id !== pedidoId
+        );
       });
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createProducto, getCategorias } from "../redux/slices/productoSlice";
 import Layout from "../components/layout";
@@ -19,24 +19,73 @@ const AgregarProducto = () => {
   });
   const [imagenes, setImagenes] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!categorias || categorias.length === 0) {
       dispatch(getCategorias());
     }
+
+    // Evento para pegar imágenes
+    const handlePaste = (e) => {
+      const items = e.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          const blob = items[i].getAsFile();
+          handleAddImage(blob);
+        }
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
   }, [dispatch, categorias]);
+
+  // Validar y añadir imágenes
+  const handleAddImage = (file) => {
+    if (file && file.type.startsWith('image/')) {
+      if (imagenes.length < 5) {
+        const newImages = [...imagenes, file];
+        setImagenes(newImages);
+        
+        const preview = URL.createObjectURL(file);
+        setPreviewImages([...previewImages, preview]);
+      } else {
+        alert('Máximo 5 imágenes permitidas');
+      }
+    }
+  };
 
   // Manejar cambios en los inputs del formulario
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Manejar selección de imágenes y generar previsualización
+  // Manejar selección de imágenes desde el input de archivo
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setImagenes(files);
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages(previews);
+    files.forEach(handleAddImage);
+  };
+
+  // Manejar arrastrar y soltar
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    files.forEach(handleAddImage);
   };
 
   // Eliminar una imagen de la previsualización
@@ -137,12 +186,37 @@ const AgregarProducto = () => {
 
           <div>
             <label className="block text-gray-700 font-medium mb-2">Imágenes</label>
-            <input
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              className="w-full p-3 border rounded focus:outline-none focus:ring focus:ring-blue-300"
-            />
+            <div 
+              className={`w-full p-6 border-2 border-dashed rounded-lg text-center transition-colors duration-300 ${
+                dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
+              <p className="text-gray-600 mb-4">
+                Arrastra y suelta imágenes aquí o{' '}
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current.click()}
+                  className="text-blue-500 hover:underline"
+                >
+                  selecciona archivos
+                </button>
+              </p>
+              <p className="text-sm text-gray-500">
+                Puedes pegar imágenes directamente. Máximo 5 imágenes.
+              </p>
+            </div>
+            
             <div className="mt-4 grid grid-cols-3 gap-4">
               {previewImages.map((src, index) => (
                 <div key={index} className="relative">
