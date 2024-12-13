@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   fetchCarrito,
   removeProducto,
@@ -9,6 +10,7 @@ import Layout from "../components/layout";
 
 const ShoppingCart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { productos, status, error } = useSelector((state) => state.carrito);
   const [cantidades, setCantidades] = useState({}); // Estado para las cantidades por producto
 
@@ -19,12 +21,13 @@ const ShoppingCart = () => {
   useEffect(() => {
     if (productos && productos.length > 0) {
       const cantidadesIniciales = productos.reduce((acc, prod) => {
-        acc[prod.id] = prod.cantidad;
+        acc[prod.id] = prod.cantidad || 1; // Asegúrate de que la cantidad sea siempre válida
         return acc;
       }, {});
       setCantidades(cantidadesIniciales);
     }
   }, [productos]);
+  
 
   const handleCantidadChange = (e, productoId) => {
     const nuevaCantidad = Math.max(1, parseInt(e.target.value, 10) || 1);
@@ -126,6 +129,12 @@ const ShoppingCart = () => {
         <p className="text-xl font-bold text-gray-800">
           Total: ${total.toFixed(2)}
         </p>
+        <button
+            onClick={() => navigate("/pedido")} // Redirigir a la página del pedido
+            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg mt-4 transition"
+          >
+            Proceder al Pedido
+          </button>
       </div>
     </div>
     </Layout>

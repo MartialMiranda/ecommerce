@@ -1,29 +1,131 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  obtenerPedidos,
+  crearPedido,
+  cambiarEstadoPedido,
+  obtenerDetallesPedido,
+  eliminarPedido,
+} from "../../api/pedidos";
 
-// Estado inicial de los pedidos
-const initialState = {
-  pedidos: [], // Lista de pedidos realizados
-  status: "idle", // Estado de las operaciones (idle, loading, success, failed)
-  error: null, // Manejo de errores
-};
+// Thunks asincrónicos
+export const fetchPedidos = createAsyncThunk(
+  "pedido/fetchPedidos",
+  async (_, { rejectWithValue }) => {
+    try {
+      const pedidos = await obtenerPedidos();
+      return pedidos;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al obtener los pedidos");
+    }
+  }
+);
 
+export const createPedido = createAsyncThunk(
+  "pedido/createPedido",
+  async (pedidoData, { rejectWithValue }) => {
+    try {
+      const pedido = await crearPedido(pedidoData);
+      return pedido;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al crear el pedido");
+    }
+  }
+);
+
+export const updateEstadoPedido = createAsyncThunk(
+  "pedido/updateEstadoPedido",
+  async ({ pedidoId, estado }, { rejectWithValue }) => {
+    try {
+      const pedido = await cambiarEstadoPedido(pedidoId, estado);
+      return pedido;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al cambiar el estado del pedido");
+    }
+  }
+);
+
+export const fetchDetallesPedido = createAsyncThunk(
+  "pedido/fetchDetallesPedido",
+  async (pedidoId, { rejectWithValue }) => {
+    try {
+      const detalles = await obtenerDetallesPedido(pedidoId);
+      return detalles;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al obtener los detalles del pedido");
+    }
+  }
+);
+
+export const deletePedido = createAsyncThunk(
+  "pedido/deletePedido",
+  async (pedidoId, { rejectWithValue }) => {
+    try {
+      const response = await eliminarPedido(pedidoId);
+      return pedidoId;
+    } catch (error) {
+      return rejectWithValue(error.message || "Error al eliminar el pedido");
+    }
+  }
+);
+
+// Slice del pedido
 const pedidoSlice = createSlice({
   name: "pedido",
-  initialState,
-  reducers: {
-    addPedido: (state, action) => {
-      state.pedidos.push(action.payload);
-    },
-    setPedidosStatus: (state, action) => {
-      state.status = action.payload;
-    },
-    setPedidosError: (state, action) => {
-      state.error = action.payload;
-    },
+  initialState: {
+    pedidos: [],
+    detalles: null,
+    status: "idle", // "idle", "loading", "succeeded", "failed"
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // Obtener pedidos
+      .addCase(fetchPedidos.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPedidos.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.pedidos = action.payload;
+      })
+      .addCase(fetchPedidos.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
+      // Crear pedido
+      .addCase(createPedido.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createPedido.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.pedidos.push(action.payload);
+      })
+      .addCase(createPedido.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
+      // Cambiar estado del pedido
+      .addCase(updateEstadoPedido.fulfilled, (state, action) => {
+        const pedidoActualizado = action.payload;
+        const index = state.pedidos.findIndex((p) => p.id === pedidoActualizado.id);
+        if (index !== -1) {
+          state.pedidos[index] = pedidoActualizado;
+        }
+      })
+
+      // Obtener detalles del pedido
+      .addCase(fetchDetallesPedido.fulfilled, (state, action) => {
+        state.detalles = action.payload;
+      })
+
+      // Eliminar pedido
+      .addCase(deletePedido.fulfilled, (state, action) => {
+        const pedidoId = action.payload;
+        state.pedidos = state.pedidos.filter((pedido) => pedido.id !== pedidoId);
+      });
   },
 });
-
-export const { addPedido, setPedidosStatus, setPedidosError } =
-  pedidoSlice.actions;
 
 export default pedidoSlice.reducer;

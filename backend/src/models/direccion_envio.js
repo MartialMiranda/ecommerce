@@ -3,12 +3,12 @@ const db = require('../db/index');
 
 const DireccionEnvio = {
     getAll: async (usuarioId) => {
-        console.log('Buscando direcciones para usuario:', usuarioId);
+        //console.log('Buscando direcciones para usuario:', usuarioId);
         const res = await db.query(
             'SELECT * FROM direccion_envio WHERE usuario_id = $1', 
             [usuarioId]
         );
-        console.log('Direcciones encontradas:', res.rows);
+        //console.log('Direcciones encontradas:', res.rows);
         return res.rows;
     },
     

@@ -18,6 +18,8 @@ import AgregarProducto from "./pages/AgregarProducto";
 import MisProductos from "./pages/MisProductos";
 import EditarProducto from "./pages/EditarProducto";
 import ShoppingCart from "./components/shoppingCart";
+import PedidoPage from "./pages/PedidoPage";
+import ConfirmacionPedidoPage from "./pages/ConfirmacionPedidoPage";
 
 const PrivateRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -52,6 +54,11 @@ const App = () => {
             <Route path="/agregar-producto" element={<AgregarProducto />} />
             <Route path="/mis-productos" element={<MisProductos />} />
             <Route path="/carrito" element={<ShoppingCart />} />
+            <Route path="/pedido" element={<PedidoPage />} />
+            <Route
+              path="/confirmacion-pedido"
+              element={<ConfirmacionPedidoPage />}
+            />
           </Route>
 
           {/* Rutas restringidas */}
