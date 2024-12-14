@@ -1,13 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react"; // Asegúrate de instalar lucide-react
+import { Heart, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducto } from "../redux/slices/carritoSlice";
+import { fetchProtectedInfo } from "../api/auth";
 
-const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
+const ProductoCard = ({ producto }) => {
   const [liked, setLiked] = useState(false);
-  const [cantidad, setCantidad] = useState(1); // Estado para la cantidad
+  const [user, setUser] = useState(null);
   const dispatch = useDispatch();
+
+  // Obtener información del usuario
+  useEffect(() => {
+    const obtenerInfoUsuario = async () => {
+      try {
+        const response = await fetchProtectedInfo();
+        setUser(response.data.usuario);
+      } catch (error) {
+        console.error("Error al obtener datos de usuario", error);
+      }
+    };
+
+    obtenerInfoUsuario();
+  }, []);
 
   // Accede al estado del carrito
   const carrito = useSelector((state) => state.carrito.productos);
@@ -16,15 +31,8 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
   const productoEnCarrito = carrito.find((p) => p.id === producto.id);
   const cantidadActualEnCarrito = productoEnCarrito?.cantidad || 0;
 
-  const precioOriginal = Number(producto.precio) || 0;
-
-  const descuento = esOfertaEspecial
-    ? Math.floor(Math.random() * (50 - 10 + 1)) + 10 // Descuentos entre 10% y 50%
-    : 0;
-
-  const precioConDescuento = esOfertaEspecial
-    ? precioOriginal * (1 - descuento / 100)
-    : precioOriginal;
+  // Verificar si el producto pertenece al usuario
+  const esProductoDelUsuario = producto.usuario_id === user?.id;
 
   const handleLike = (e) => {
     e.preventDefault();
@@ -33,7 +41,8 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
 
   const handleAgregarAlCarrito = async () => {
     try {
-      const cantidadTotal = cantidadActualEnCarrito + cantidad; // Sumar cantidad actual + input
+      // Se envía la cantidad 1 por defecto
+      const cantidadTotal = cantidadActualEnCarrito + 1;
       const response = await dispatch(
         addProducto({ productoId: producto.id, cantidad: cantidadTotal })
       ).unwrap();
@@ -60,18 +69,9 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
         className="absolute top-2 right-2 z-10 bg-white/50 rounded-full p-1 hover:bg-white/75 transition"
       >
         <Heart
-          className={`w-6 h-6 ${
-            liked ? "fill-red-500 text-red-500" : "text-gray-500"
-          }`}
+          className={`w-6 h-6 ${liked ? "fill-red-500 text-red-500" : "text-gray-500"}`}
         />
       </button>
-
-      {/* Etiqueta de descuento */}
-      {esOfertaEspecial && (
-        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-          {descuento}% OFF
-        </div>
-      )}
 
       <Link to={`/producto/${producto.id}`} className="block flex-grow">
         <img
@@ -83,42 +83,32 @@ const ProductoCard = ({ producto, esOfertaEspecial = false }) => {
           <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-1">
             {producto.titulo}
           </h3>
-          {esOfertaEspecial ? (
-            <div className="flex items-center space-x-2">
-              <p className="font-medium line-through text-red-500">
-                Bs. {precioOriginal.toFixed(2)}
-              </p>
-              <p className="text-green-600 font-bold">
-                Bs. {precioConDescuento.toFixed(2)}
-              </p>
-            </div>
-          ) : (
-            <p className="text-gray-700 font-medium">
-              Bs. {precioOriginal.toFixed(2)}
-            </p>
-          )}
+          <p className="text-gray-700 font-medium">
+            Bs. {Number(producto.precio).toFixed(2)}
+          </p>
         </div>
       </Link>
+
       <div className="p-4 bg-white">
-        {/* Selector de cantidad */}
-        <div className="flex items-center mb-2">
-          <label className="mr-2">Cantidad:</label>
-          <input
-            type="number"
-            min="1"
-            value={cantidad}
-            onChange={(e) =>
-              setCantidad(Math.max(1, parseInt(e.target.value, 10)))
-            }
-            className="border border-gray-300 rounded-lg px-2 py-1 w-16"
-          />
-        </div>
-        <button
-          className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg text-center transition"
-          onClick={handleAgregarAlCarrito}
-        >
-          Agregar al carrito
-        </button>
+        {esProductoDelUsuario ? (
+          <div className="flex space-x-4">
+            <Link
+              to={`/editar-producto/${producto.id}`}
+              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg text-center transition flex items-center justify-center"
+            >
+              <Edit className="mr-2 w-5 h-5" /> Editar
+            </Link>
+          </div>
+        ) : (
+          <>
+            <button
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg text-center transition"
+              onClick={handleAgregarAlCarrito}
+            >
+              Agregar al carrito
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
