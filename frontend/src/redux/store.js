@@ -4,6 +4,7 @@ import direccionEnvioReducer from "./slices/direccionEnvioSlice";
 import productoReducer from './slices/productoSlice';
 import carritoReducer from './slices/carritoSlice';
 import pedidoReducer from "./slices/pedidoSlice";
+import pagoReducer from "./slices/pagoSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     producto: productoReducer,
     carrito: carritoReducer,
     pedido: pedidoReducer,
+    pago: pagoReducer,
   },
 });

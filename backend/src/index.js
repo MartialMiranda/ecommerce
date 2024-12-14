@@ -13,6 +13,7 @@ const usuarioRoutes = require('./routes/usuario');
 //const carritoRoutes = require("./routes/carrito");
 const carritoRoutes = require('./routes/carritoRoutes');
 const pedidoRoutes = require('./routes/pedidoRoutes');
+const pagoRoutes = require('./routes/pagoRoutes');
 
 //import passport middleware
 require('./middlewares/passport-middleware')
@@ -43,6 +44,7 @@ app.use('/api', usuarioRoutes);
 //detalle cariito
 app.use('/api/carrito', carritoRoutes);
 app.use('/api/pedido', pedidoRoutes);
+app.use('/api/pagos', pagoRoutes);
 
 //app start
 const appStart = () => {

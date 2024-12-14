@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCarrito } from "../redux/slices/carritoSlice";
 import { createPedido } from "../redux/slices/pedidoSlice";
+import { realizarPagoThunk } from "../redux/slices/pagoSlice";
 import { getDirecciones } from "../redux/slices/direccionEnvioSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -9,7 +10,16 @@ const PedidoPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { productos } = useSelector((state) => state.carrito);
-  const { status, error } = useSelector((state) => state.pedido);
+
+  const pedido = useSelector((state) => state.pedido || {});
+  const pago = useSelector((state) => state.pago || {});
+
+  const pedidoStatus = pedido.status || "idle";
+  const pedidoError = pedido.error || null;
+
+  const pagoStatus = pago.status || "idle";
+  const pagoError = pago.error || null;
+
   const {
     direcciones,
     loading: loadingDirecciones,
@@ -19,11 +29,23 @@ const PedidoPage = () => {
   const [direccionSeleccionada, setDireccionSeleccionada] = useState("");
   const [metodoEnvio, setMetodoEnvio] = useState("Envio Exprés");
   const [costoEnvio, setCostoEnvio] = useState(100.0);
+  const [montoPago, setMontoPago] = useState(0);
+  const [metodoPago, setMetodoPago] = useState(""); // Nuevo estado para el método de pago
 
   useEffect(() => {
     dispatch(fetchCarrito());
     dispatch(getDirecciones());
   }, [dispatch]);
+
+  useEffect(() => {
+    // Calcular el monto de pago cuando cambie el carrito o el costo de envío
+    const totalProductos = productos.reduce(
+      (acc, prod) => acc + parseFloat(prod.precio) * prod.cantidad,
+      0
+    );
+    const totalPedido = totalProductos + costoEnvio;
+    setMontoPago(totalPedido); // Actualizamos el monto del pago
+  }, [productos, costoEnvio]);
 
   const handleDireccionChange = (e) => {
     setDireccionSeleccionada(e.target.value);
@@ -39,11 +61,15 @@ const PedidoPage = () => {
         break;
       case "Envio Estándar":
         setCostoEnvio(50.0);
-        break;      
+        break;
       default:
         setCostoEnvio(0.0);
         break;
     }
+  };
+
+  const handleMetodoPagoChange = (e) => {
+    setMetodoPago(e.target.value);
   };
 
   const handleCrearPedido = async () => {
@@ -54,32 +80,42 @@ const PedidoPage = () => {
 
     try {
       const pedidoData = {
-        direccionEnvioId: parseInt(direccionSeleccionada, 10),  // Convierte a número
+        direccionEnvioId: parseInt(direccionSeleccionada, 10), // Convierte a número
         metodoEnvio: metodoEnvio,
-        costoEnvio: parseFloat(costoEnvio),  // Convierte a número
+        costoEnvio: parseFloat(costoEnvio), // Convierte a número
       };
 
-      console.log("Pedido Data to Dispatch:", pedidoData);
+      const pedido = await dispatch(createPedido(pedidoData)).unwrap();
+      console.log("Pedido creado exitosamente:", pedido);
 
-      const result = await dispatch(createPedido(pedidoData)).unwrap();
-      console.log("Dispatch Result:", result);
 
-      alert("Pedido creado exitosamente.");
-      navigate("/confirmacion-pedido");
+      // Verificar que se haya seleccionado un método de pago
+      if (!metodoPago) {
+        alert("Por favor, selecciona un método de pago.");
+        return;
+      }
+
+      // Una vez creado el pedido y seleccionado el método de pago, procesamos el pago
+      await dispatch(
+        realizarPagoThunk({ pedidoId: pedido.pedidoId, monto: montoPago, metodoPago })
+      ).unwrap();
+      
+      alert("Pago procesado exitosamente.");
+      navigate("/confirmacion-pedido"); // Redirigir a una página de confirmación de pago
     } catch (error) {
-      console.error("Error al crear el pedido", error);
-      alert(`Ocurrió un error al crear el pedido: ${error}`);
+      console.error("Error al crear el pedido o procesar el pago", error);
+      alert(`Ocurrió un error: ${error}`);
     }
   };
 
   if (!productos || productos.length === 0)
     return <div className="text-center">El carrito está vacío.</div>;
 
+  // Calculamos el total de los productos aquí
   const totalProductos = productos.reduce(
     (acc, prod) => acc + parseFloat(prod.precio) * prod.cantidad,
     0
   );
-
   const totalPedido = totalProductos + costoEnvio;
 
   return (
@@ -132,7 +168,27 @@ const PedidoPage = () => {
           className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="Envio Exprés">Envio Exprés - Bs.100.00</option>
-          <option value="Envio Estándar">Envio Estándar - Bs.50.00</option>          
+          <option value="Envio Estándar">Envio Estándar - Bs.50.00</option>
+        </select>
+      </div>
+
+      {/* Métodos de Pago */}
+      <div className="metodo-pago mb-4">
+        <label
+          htmlFor="metodoPago"
+          className="block text-lg font-medium text-gray-700 mb-2"
+        >
+          Selecciona tu Método de Pago
+        </label>
+        <select
+          id="metodoPago"
+          value={metodoPago}
+          onChange={handleMetodoPagoChange}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Selecciona un método de pago</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta">Tarjeta de Crédito</option>
         </select>
       </div>
 
@@ -144,7 +200,8 @@ const PedidoPage = () => {
             <li key={producto.id} className="flex justify-between mb-2">
               <span>{producto.titulo}</span>
               <span>
-                {producto.cantidad} x Bs.{parseFloat(producto.precio).toFixed(2)}
+                {producto.cantidad} x Bs.
+                {parseFloat(producto.precio).toFixed(2)}
               </span>
             </li>
           ))}
@@ -168,10 +225,15 @@ const PedidoPage = () => {
         Confirmar Pedido
       </button>
 
-      {status === "loading" && (
-        <p className="text-center mt-4">Procesando pedido...</p>
+      {pedidoStatus === "loading" || pagoStatus === "loading" ? (
+        <p className="text-center mt-4">Procesando...</p>
+      ) : null}
+      {pedidoError && (
+        <p className="text-center text-red-500 mt-4">{pedidoError}</p>
       )}
-      {error && <p className="text-center text-red-500 mt-4">Error: {error}</p>}
+      {pagoError && (
+        <p className="text-center text-red-500 mt-4">{pagoError}</p>
+      )}
     </div>
   );
 };

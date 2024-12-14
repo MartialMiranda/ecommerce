@@ -42,7 +42,7 @@ class PedidoDao {
 
   // Obtener todos los pedidos de un usuario
   async obtenerPedidosPorUsuario(usuarioId) {
-    const query = `SELECT * FROM ${this.tableName} WHERE usuario_id = $1 ORDER BY fecha_pedido ASC;`;
+    const query = `SELECT * FROM ${this.tableName} WHERE usuario_id = $1 ORDER BY fecha_pedido DESC;`;
     const result = await db.query(query, [usuarioId]);
     return result.rows;
   }
