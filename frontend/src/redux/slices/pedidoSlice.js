@@ -5,6 +5,7 @@ import {
   cambiarEstadoPedido,
   obtenerDetallesPedido,
   eliminarPedido,
+  obtenerVentas,
 } from "../../api/pedidos";
 
 // Thunks asincrónicos
@@ -16,6 +17,21 @@ export const fetchPedidos = createAsyncThunk(
       return pedidos;
     } catch (error) {
       return rejectWithValue(error.message || "Error al obtener los pedidos");
+    }
+  }
+);
+
+// Nuevo thunk para obtener ventas
+export const fetchVentas = createAsyncThunk(
+  "pedido/fetchVentas",
+  async (_, { rejectWithValue }) => {
+    try {
+      const ventas = await obtenerVentas();
+      return ventas;
+    } catch (error) {
+      return rejectWithValue(
+        error.message || "Error al obtener las ventas"
+      );
     }
   }
 );
@@ -77,6 +93,7 @@ const pedidoSlice = createSlice({
   name: "pedido",
   initialState: {
     pedidos: [],
+    ventas: [],
     detalles: [],
     status: "idle", // "idle", "loading", "succeeded", "failed"
     error: null,
@@ -96,7 +113,18 @@ const pedidoSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
-
+      // Obtener ventas
+      .addCase(fetchVentas.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchVentas.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.ventas = action.payload;
+      })
+      .addCase(fetchVentas.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
       // Crear pedido
       .addCase(createPedido.pending, (state) => {
         state.status = "loading";

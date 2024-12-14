@@ -9,6 +9,12 @@ export const obtenerPedidos = async () => {
   return response.data; // Lista de pedidos
 };
 
+// Obtener todas las ventas del vendedor
+export const obtenerVentas = async () => {
+  const response = await axios.get(`${API_URL}/ventas`);
+  return response.data; // Lista de ventas
+};
+
 // Crear un nuevo pedido
 export const crearPedido = async (pedidoData) => {
   const response = await axios.post(`${API_URL}`, pedidoData);
@@ -26,6 +32,7 @@ export const obtenerDetallesPedido = async (pedidoId) => {
   const response = await axios.get(`${API_URL}/${pedidoId}`);
   return response.data; // Detalles del pedido
 };
+
 
 // Eliminar un pedido
 export const eliminarPedido = async (pedidoId) => {

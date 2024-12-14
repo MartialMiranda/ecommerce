@@ -22,6 +22,7 @@ import PedidoPage from "./pages/PedidoPage";
 import ConfirmacionPedidoPage from "./pages/ConfirmacionPedidoPage";
 import DetallePedidoPage from "./pages/DetallePedidoPage";
 import PedidosPage from "./pages/PedidosPage";
+import MisVentas from "./pages/MisVentas";
 
 const PrivateRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -58,7 +59,8 @@ const App = () => {
             <Route path="/carrito" element={<ShoppingCart />} />
             <Route path="/pedido" element={<PedidoPage />} />
             <Route path="/pedidos" element={<PedidosPage />} />
-        <Route path="/pedido/:pedidoId" element={<DetallePedidoPage />} />
+            <Route path="/mis-ventas" element={<MisVentas />} />
+            <Route path="/pedido/:pedidoId" element={<DetallePedidoPage />} />
             <Route
               path="/confirmacion-pedido"
               element={<ConfirmacionPedidoPage />}

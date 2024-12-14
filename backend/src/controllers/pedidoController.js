@@ -32,7 +32,38 @@ class PedidoController {
       res.status(500).json({ message: 'Error al crear el pedido', error });
     }
   }
-
+  async obtenerDetallesVentasDePropietario(req, res) {
+    try {
+      const propietarioId = req.user.id;
+  
+      // Validar que propietarioId sea un número válido
+      if (!propietarioId || isNaN(propietarioId)) {
+        return res.status(400).json({
+          message: 'El ID del propietario no es válido. Debe ser un número.',
+        });
+      }
+  
+      //console.log('Propietario ID:', propietarioId); // Debug
+  
+      // Llamar al DAO para obtener los detalles
+      const detallesVentas = await PedidoDao.obtenerDetallesVentasPorPropietario(propietarioId);
+  
+      if (!detallesVentas.length) {
+        return res.status(404).json({ 
+          message: 'No se encontraron ventas relacionadas con los productos del propietario.' 
+        });
+      }
+  
+      res.json(detallesVentas);
+    } catch (error) {
+      console.error('Error al obtener los detalles de las ventas del propietario:', error);
+      res.status(500).json({ 
+        message: 'Error al obtener los detalles de las ventas.',
+        error 
+      });
+    }
+  }  
+  
   // Obtener todos los pedidos del usuario autenticado
   async obtenerPedidos(req, res) {
     try {

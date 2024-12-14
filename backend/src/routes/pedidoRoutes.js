@@ -11,8 +11,13 @@ router.post('/', userAuth, pedidoController.crearPedido);
 // Obtener todos los pedidos del usuario autenticado
 router.get('/', userAuth, pedidoController.obtenerPedidos);
 
+// Obtener detalles completos de las ventas de un propietario
+router.get('/ventas', userAuth, pedidoController.obtenerDetallesVentasDePropietario);
+
 // Obtener detalles de un pedido específico
 router.get('/:id', userAuth, pedidoController.obtenerDetallesPedido);
+
+
 
 // Cambiar el estado de un pedido
 router.put('/:id/estado', userAuth, pedidoController.cambiarEstado);

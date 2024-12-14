@@ -59,7 +59,7 @@ const PerfilUsuario = ({ onLogout, user  }) => {
               <div className="bg-yellow-100 p-3 rounded-full">
                 <span className="text-yellow-500 text-xl">💳</span>
               </div>
-              <span className="text-gray-800 font-medium">Mis Compras</span>
+              <span className="text-gray-800 font-medium">Mis Pedidos</span>
             </div>
             <span className="text-yellow-500">➡️</span>
           </Link>
@@ -78,14 +78,14 @@ const PerfilUsuario = ({ onLogout, user  }) => {
           </Link>
 
           <Link
-            to="/pedidos"
+            to="/mis-ventas"
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-purple-50 transition duration-200"
           >
             <div className="flex items-center space-x-4">
               <div className="bg-purple-100 p-3 rounded-full">
-                <span className="text-purple-500 text-xl">📦</span>
+                <span className="text-purple-500 text-xl">🕐</span>
               </div>
-              <span className="text-gray-800 font-medium">Pedidos</span>
+              <span className="text-gray-800 font-medium">Mis Ventas</span>
             </div>
             <span className="text-purple-500">➡️</span>
           </Link>

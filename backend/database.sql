@@ -53,6 +53,7 @@ CREATE TABLE pedido (
     total DECIMAL(10, 2) NOT NULL CHECK (total >= 0), -- Asegura que el total no sea negativo
     estado VARCHAR(50) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'procesando', 'enviando', 'completado', 'cancelado')),
     metodo_envio VARCHAR(50),
+    confirmado BOOLEAN DEFAULT FALSE,
     costo_envio DECIMAL(10, 2)
 );
 CREATE TABLE detalle_pedido (
