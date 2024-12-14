@@ -96,19 +96,15 @@ const actualizarProducto = async (req, res) => {
       es_activo,
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Producto actualizado con éxito",
-        producto: productoActualizado,
-      });
+    res.status(200).json({
+      message: "Producto actualizado con éxito",
+      producto: productoActualizado,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error al actualizar el producto",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error al actualizar el producto",
+      error: error.message,
+    });
   }
 };
 
@@ -169,6 +165,22 @@ const obtenerMisProductos = async (req, res) => {
       detailedError: error.stack,
     });
   }
+  
+};
+const obtenerProductosfiltrados = async (req, res) => {
+  try {
+    // Obtener categoria_id de los parámetros de la consulta
+    const { categoria_id } = req.query;
+
+    // Llamar al modelo para obtener productos, pasando el categoria_id si existe
+    const productos = await Producto.getFiltered(categoria_id);
+
+    res.status(200).json(productos);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener productos", error: error.message });
+  }
 };
 
 module.exports = {
@@ -179,4 +191,5 @@ module.exports = {
   eliminarProducto,
   obtenerMisProductos,
   obtenerCategorias,
+  obtenerProductosfiltrados,
 };

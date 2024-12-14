@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVentas, updateEstadoPedido } from "../redux/slices/pedidoSlice";
 import { Link } from "react-router-dom";
+import Layout from "../components/layout";
 
 const MisVentas = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ const MisVentas = () => {
   };
 
   return (
+    <Layout>
     <div className="bg-gray-100 min-h-screen p-6">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Mis Ventas</h1>
 
@@ -125,7 +127,9 @@ const MisVentas = () => {
       
       )}
     </div>
+    </Layout>
   );
+  
 };
 
 export default MisVentas;

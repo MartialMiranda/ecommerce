@@ -8,7 +8,8 @@ const {
   actualizarProducto,
   eliminarProducto,
   obtenerMisProductos,
-  obtenerCategorias
+  obtenerCategorias,
+  obtenerProductosfiltrados
 } = require('../controllers/producto');
 const passport = require('passport');
 
@@ -18,6 +19,7 @@ const router = express.Router();
 
 router.get('/',  obtenerProductos);
 router.get('/categorias',userAuth, obtenerCategorias);
+router.get('/productos', obtenerProductosfiltrados);
 router.get('/mis-productos', userAuth, obtenerMisProductos);
 router.get('/:id',  obtenerProductoPorId);
 router.post('/', upload.array('imagenes', 5), userAuth, crearProducto);

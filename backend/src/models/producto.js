@@ -1,13 +1,13 @@
 // src/models/producto.js
-const BaseDao = require('../dao/baseDao');
-const ImagenProducto = require('../models/imagen_producto');
-const fs = require('fs');
-const path = require('path');
-const db = require('../db');
+const BaseDao = require("../dao/baseDao");
+const ImagenProducto = require("../models/imagen_producto");
+const fs = require("fs");
+const path = require("path");
+const db = require("../db");
 
 class Producto {
   constructor() {
-    this.dao = new BaseDao('producto');  // Nombre de la tabla
+    this.dao = new BaseDao("producto"); // Nombre de la tabla
   }
 
   async create(producto) {
@@ -30,27 +30,31 @@ class Producto {
   async delete(id) {
     // Obtener imágenes asociadas
     const imagenes = await ImagenProducto.findByProductoId(id);
-  
+
     // Eliminar archivos de imágenes
     for (const imagen of imagenes) {
-      const filePath = path.join(__dirname, '../uploads/productos-imagenes', path.basename(imagen.url_imagen));
-      console.log('Eliminando archivo:', filePath);
-  
+      const filePath = path.join(
+        __dirname,
+        "../uploads/productos-imagenes",
+        path.basename(imagen.url_imagen)
+      );
+      console.log("Eliminando archivo:", filePath);
+
       try {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
-          console.log('Archivo eliminado:', filePath);
+          console.log("Archivo eliminado:", filePath);
         } else {
-          console.warn('Archivo no encontrado:', filePath);
+          console.warn("Archivo no encontrado:", filePath);
         }
       } catch (error) {
-        console.error('Error al eliminar archivo:', filePath, error.message);
+        console.error("Error al eliminar archivo:", filePath, error.message);
       }
     }
-  
+
     // Eliminar registros de imágenes en la base de datos
     await ImagenProducto.deleteByProductoId(id);
-  
+
     // Eliminar el producto
     return await this.dao.eliminar(id);
   }
@@ -58,11 +62,11 @@ class Producto {
   async getMisProductos(usuarioId) {
     try {
       const userId = Number(usuarioId);
-      
+
       if (!userId || isNaN(userId)) {
-        throw new Error('ID de usuario inválido');
+        throw new Error("ID de usuario inválido");
       }
-  
+
       const query = `
         SELECT 
           p.*,
@@ -83,17 +87,31 @@ class Producto {
         WHERE p.usuario_id = $1 
         ORDER BY p.fecha_creacion DESC
       `;
-      
+
       const result = await db.query(query, [userId]);
       return result.rows;
     } catch (error) {
-      console.error('Error al obtener mis productos:', error);
+      console.error("Error al obtener mis productos:", error);
       throw error;
     }
   }
-  async getCategorias() {
-    const query = `SELECT id, nombre FROM categoria ORDER BY nombre ASC;`;
-    const result = await db.query(query);
+  async getByName(nombre) {
+    const query = `SELECT * FROM producto WHERE es_activo = TRUE AND nombre ILIKE '%' || $1 || '%' ORDER BY fecha_creacion DESC;`;
+    const result = await db.query(query, [nombre]);
+    return result.rows;
+  }
+
+  async getFiltered(categoriaId) {
+    let query =
+      "SELECT * FROM producto WHERE es_activo = TRUE ORDER BY fecha_creacion DESC";
+    let values = [];
+
+    if (categoriaId) {
+      query += " AND categoria_id = $1";
+      values.push(categoriaId);
+    }
+
+    const result = await db.query(query, values);
     return result.rows;
   }
 }

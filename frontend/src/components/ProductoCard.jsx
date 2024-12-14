@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";  // Importar useNavigate
 import { Heart, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducto } from "../redux/slices/carritoSlice";
@@ -9,6 +9,7 @@ const ProductoCard = ({ producto }) => {
   const [liked, setLiked] = useState(false);
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();  // Inicializar useNavigate
 
   // Obtener información del usuario
   useEffect(() => {
@@ -40,6 +41,13 @@ const ProductoCard = ({ producto }) => {
   };
 
   const handleAgregarAlCarrito = async () => {
+    if (!user) {
+      // Si el usuario no está autenticado, redirigir al login
+      alert("Por favor, inicia sesión para agregar productos al carrito.");
+      navigate("/login");  // Redirige a la página de login
+      return;  // Detener la ejecución
+    }
+
     try {
       // Se envía la cantidad 1 por defecto
       const cantidadTotal = cantidadActualEnCarrito + 1;

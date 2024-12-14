@@ -5,6 +5,7 @@ import { createPedido } from "../redux/slices/pedidoSlice";
 import { realizarPagoThunk } from "../redux/slices/pagoSlice";
 import { getDirecciones } from "../redux/slices/direccionEnvioSlice";
 import { useNavigate } from "react-router-dom";
+import Layout from "../components/layout";
 
 const PedidoPage = () => {
   const dispatch = useDispatch();
@@ -119,6 +120,7 @@ const PedidoPage = () => {
   const totalPedido = totalProductos + costoEnvio;
 
   return (
+    <Layout>
     <div className="pedido-page p-6">
       <h1 className="text-2xl font-bold mb-4">Realizar Pedido</h1>
 
@@ -235,6 +237,7 @@ const PedidoPage = () => {
         <p className="text-center text-red-500 mt-4">{pagoError}</p>
       )}
     </div>
+    </Layout>
   );
 };
 

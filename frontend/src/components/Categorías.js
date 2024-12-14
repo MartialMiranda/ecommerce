@@ -1,65 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import Axios from 'axios'; // Si usas Axios, si no, usa fetch
-import { FaMobileAlt, FaTshirt, FaCouch, FaGamepad, FaHeadphones, FaBook } from 'react-icons/fa';
-import { IoIosFootball } from "react-icons/io";
-import { GiLipstick } from "react-icons/gi";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCategorias } from '../redux/slices/categoriaSlice'; // Asegúrate de importar correctamente
+import { Swiper, SwiperSlide } from 'swiper/react';  // Importa Swiper
+import 'swiper/css';  // Importa los estilos de Swiper
+import 'swiper/css/navigation';  // Estilos de navegación si los necesitas
 
 const Categorías = () => {
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [products, setProducts] = useState([]);  // Asume que también tienes un estado para los productos
+  const dispatch = useDispatch();
+  const { categorias, loading, error } = useSelector((state) => state.categoria); // Accede al estado de categorias
 
-  // Obtener categorías desde el backend
   useEffect(() => {
-    const obtenerCategorias = async () => {
-      try {
-        const response = await Axios.get('http://localhost:8000/obtenerCategorias'); // URL de tu backend
-        setCategories(response.data.data); // Suponiendo que la respuesta es de la forma { success: true, data: [] }
-      } catch (error) {
-        console.error('Error al obtener categorías:', error);
-      }
-    };
+    dispatch(getCategorias()); // Obtiene las categorías cuando el componente se monta
+  }, [dispatch]);
 
-    obtenerCategorias();
-  }, []);
-
-  // Función para filtrar productos por categoría seleccionada
-  const handleCategorySelect = (categoryId) => {
-    setSelectedCategory(categoryId);
-    // Realiza la lógica para filtrar productos según la categoría (esto depende de tu lógica de productos)
-    // Aquí tienes un ejemplo simple, asumiendo que tienes un array de productos
-    const productosFiltrados = allProducts.filter((producto) => producto.categoria_id === categoryId);
-    setProducts(productosFiltrados);
-  };
+  if (loading) return <div>Cargando categorías...</div>;
+  if (error) return <div>Error al cargar las categorías: {error}</div>;
+  if (!Array.isArray(categorias)) return <div>No se han encontrado categorías.</div>;
 
   return (
     <div className="w-full mx-auto p-6">
-      <ul className="flex justify-center space-x-4">
-        {categories.map((category) => (
-          <li
-            key={category.id} // Cambié key por category.id
-            className="flex flex-col items-center hover:bg-gray-100 p-4 rounded-md transition cursor-pointer"
-            onClick={() => handleCategorySelect(category.id)}
-          >
-            <div className="text-blue-500 text-3xl">
-              {/* Aquí se puede agregar el icono correspondiente por cada categoría */}
-              {category.icon === 'Electrónica' ? <FaMobileAlt /> :
-               category.icon === 'Moda' ? <FaTshirt /> :
-               category.icon === 'Hogar' ? <FaCouch /> :
-               category.icon === 'Juegos' ? <FaGamepad /> :
-               category.icon === 'Música' ? <FaHeadphones /> :
-               category.icon === 'Libros' ? <FaBook /> :
-               category.icon === 'Deportes' ? <IoIosFootball /> :
-               category.icon === 'Belleza' ? <GiLipstick /> :
-               null
-              }
-            </div>
-            <span className="text-lg font-semibold text-gray-700 hover:text-blue-500">
-              {category.nombre}
-            </span>
-          </li>
+      <Swiper
+        spaceBetween={20} // Espacio entre los elementos
+        slidesPerView={6} // Muestra 3 elementos al mismo tiempo
+        freeMode={true}  // Permite deslizar libremente
+        className="mySwiper"
+      >
+        {categorias.map((category, index) => (
+          <SwiperSlide key={index} className="flex flex-col items-center p-4 rounded-lg  text-gray-700 text-center cursor-pointer hover:bg-gray-100 transition-all">
+            <button className="text-sm font-semibold">{category.nombre}</button>
+          </SwiperSlide>
         ))}
-      </ul>
+      </Swiper>
     </div>
   );
 };

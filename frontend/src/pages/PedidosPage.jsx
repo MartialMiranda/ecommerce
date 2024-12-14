@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPedidos, updateEstadoPedido } from "../redux/slices/pedidoSlice";
 import { Link } from "react-router-dom";
+import Layout from "../components/layout";
 
 const PedidosPage = () => {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ const PedidosPage = () => {
   }
 
   return (
+    <Layout>
     <div className="pedidos-page p-6">
       <h1 className="text-2xl font-bold mb-4">Mis Pedidos</h1>
       <ul className="divide-y divide-gray-300">
@@ -71,6 +73,7 @@ const PedidosPage = () => {
         ))}
       </ul>
     </div>
+    </Layout>
   );
 };
 
