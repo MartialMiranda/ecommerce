@@ -13,6 +13,7 @@ const {
 } = require('../controllers/producto');
 const passport = require('passport');
 
+
 const userAuth = passport.authenticate('jwt', { session: false });
 
 const router = express.Router();

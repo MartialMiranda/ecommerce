@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";  // Importar useNavigate
+import { Link, useNavigate } from "react-router-dom"; // Importar useNavigate
 import { Heart, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducto } from "../redux/slices/carritoSlice";
 import { fetchProtectedInfo } from "../api/auth";
+import toastr from "toastr";
+import "toastr/build/toastr.css";
 
 const ProductoCard = ({ producto }) => {
   const [liked, setLiked] = useState(false);
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
-  const navigate = useNavigate();  // Inicializar useNavigate
+  const navigate = useNavigate(); // Inicializar useNavigate
+
+  // Configuración global de Toastr
+  toastr.options = {
+    positionClass: "toast-top-right",
+    timeOut: "3000",
+    closeButton: true,
+    progressBar: true,
+  };
 
   // Obtener información del usuario
   useEffect(() => {
@@ -18,6 +28,7 @@ const ProductoCard = ({ producto }) => {
         const response = await fetchProtectedInfo();
         setUser(response.data.usuario);
       } catch (error) {
+        toastr.error("Error al obtener datos de usuario.");
         console.error("Error al obtener datos de usuario", error);
       }
     };
@@ -28,9 +39,8 @@ const ProductoCard = ({ producto }) => {
   // Accede al estado del carrito
   const carrito = useSelector((state) => state.carrito.productos);
 
-  // Encuentra la cantidad actual del producto en el carrito
+  // Encuentra si el producto ya está en el carrito
   const productoEnCarrito = carrito.find((p) => p.id === producto.id);
-  const cantidadActualEnCarrito = productoEnCarrito?.cantidad || 0;
 
   // Verificar si el producto pertenece al usuario
   const esProductoDelUsuario = producto.usuario_id === user?.id;
@@ -38,31 +48,36 @@ const ProductoCard = ({ producto }) => {
   const handleLike = (e) => {
     e.preventDefault();
     setLiked(!liked);
+    toastr.success(liked ? "Eliminado de favoritos" : "Agregado a favoritos");
   };
 
   const handleAgregarAlCarrito = async () => {
     if (!user) {
       // Si el usuario no está autenticado, redirigir al login
-      alert("Por favor, inicia sesión para agregar productos al carrito.");
-      navigate("/login");  // Redirige a la página de login
-      return;  // Detener la ejecución
+      toastr.warning("Por favor, inicia sesión para agregar productos al carrito.");
+      navigate("/login");
+      return; // Detener la ejecución
     }
 
     try {
-      // Se envía la cantidad 1 por defecto
-      const cantidadTotal = cantidadActualEnCarrito + 1;
-      const response = await dispatch(
-        addProducto({ productoId: producto.id, cantidad: cantidadTotal })
-      ).unwrap();
+      // Verificar si el producto ya existe en el carrito
+      if (productoEnCarrito) {
+        toastr.info("Este producto ya está en tu carrito.");
+        return;
+      }
 
-      alert(
-        response.existing
-          ? "Cantidad actualizada en el carrito"
-          : "Producto agregado al carrito"
-      );
+      // Verificar si hay stock disponible
+      if (producto.stock <= 0) {
+        toastr.error("El producto no tiene stock disponible.");
+        return;
+      }
+
+      // Agregar el producto con cantidad 1 por defecto
+      await dispatch(addProducto({ productoId: producto.id, cantidad: 1 })).unwrap();
+      toastr.success("Producto agregado al carrito con éxito!");
     } catch (error) {
       console.error("Error al agregar el producto al carrito", error);
-      alert("Ocurrió un error al agregar el producto");
+      toastr.error("Ocurrió un error al agregar el producto al carrito.");
     }
   };
 

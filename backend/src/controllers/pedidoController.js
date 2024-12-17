@@ -1,4 +1,4 @@
-const PedidoDao = require('../dao/PedidoDao');
+const PedidoDao = require('../dao/pedidoDao');
 const CarritoDao = require('../dao/carritoDao');
 
 class PedidoController {

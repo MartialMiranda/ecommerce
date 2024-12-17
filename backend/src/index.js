@@ -39,8 +39,6 @@ app.use('/uploads', express.static('src/uploads'));
 app.use('/api/direcciones', direccionEnvioRoutes);
 //obtener usuarios perfil
 app.use('/api', usuarioRoutes);
-//agregar un carrito
-//app.use("/api/carrito", carritoRoutes);
 //detalle cariito
 app.use('/api/carrito', carritoRoutes);
 app.use('/api/pedido', pedidoRoutes);

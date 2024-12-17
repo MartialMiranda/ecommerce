@@ -100,6 +100,16 @@ class Producto {
     const result = await db.query(query, [nombre]);
     return result.rows;
   }
+  async getCategorias() {
+    try {
+      const query = "SELECT * FROM categoria ORDER BY nombre ASC;";
+      const result = await db.query(query);
+      return result.rows;
+    } catch (error) {
+      console.error("Error al obtener categorías:", error);
+      throw error;
+    }
+  }
 
   async getFiltered(categoriaId) {
     let query =

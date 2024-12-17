@@ -163,7 +163,7 @@ const productoSlice = createSlice({
         if (index !== -1) {
           state.productos[index] = action.payload;
         }
-      })
+      })      
       // Obtener producto por ID
       .addCase(getProductoById.pending, (state) => {
         state.loadingProducto = true;

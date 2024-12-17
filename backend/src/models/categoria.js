@@ -11,16 +11,17 @@ const Categoria = {
         return rows[0];
       },
 
-  async obtenerPorId(id) {
-    const query = 'SELECT * FROM categoria WHERE id = $1';
-    const { rows } = await db.query(query, [id]);
-    return rows[0];
-  },
+  
 
   async obtenerTodas() {
     const query = 'SELECT * FROM categoria';
     const { rows } = await db.query(query);
     return rows;
+  },
+  async obtenerPorId(id) {
+    const query = 'SELECT * FROM categoria WHERE id = $1';
+    const { rows } = await db.query(query, [id]);
+    return rows[0];
   },
 
   async obtenerCategoriasHijo(id) {

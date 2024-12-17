@@ -1,85 +1,91 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducto } from "../redux/slices/carritoSlice";
 import { fetchProductos } from "../api/productos";
-import { FaHeart, FaFlag, FaStar, FaStarHalfAlt } from "react-icons/fa";
-import Layout from "../components/layout";
 import { fetchProtectedInfo } from "../api/auth";
-import { Link } from "react-router-dom";
+import { FaHeart, FaFlag } from "react-icons/fa";
+import Layout from "../components/layout";
+import toastr from "toastr";
+import "toastr/build/toastr.css";
 
 const ProductoDetallesPage = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const [producto, setProducto] = useState(null);
   const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
   const [error, setError] = useState(null);
-  const [calificacion, setCalificacion] = useState(0);
-  const [cantidad, setCantidad] = useState(1);
-  const dispatch = useDispatch();
   const [user, setUser] = useState(null);
 
-  const protectedInfo = async () => {
+  const carrito = useSelector((state) => state.carrito.productos);
+
+  // Configuración global de Toastr
+  toastr.options = {
+    positionClass: "toast-top-right",
+    timeOut: "3000",
+    closeButton: true,
+    progressBar: true,
+  };
+
+  // Función para obtener datos del usuario autenticado
+  const cargarUsuario = async () => {
     try {
       const response = await fetchProtectedInfo();
-      setUser(response.data.usuario); // Ajusta la propiedad según la respuesta del backend
+      setUser(response.data.usuario);
     } catch (error) {
-      console.error(
-        "Error al obtener datos protegidos:",
-        error.response || error.message
-      );
+      setError("Error al obtener la información del usuario.");
     }
   };
-  useEffect(() => {
-    protectedInfo();
-  }, []);
 
-  // Accede al estado del carrito y usuario logeado
-  const carrito = useSelector((state) => state.carrito.productos);
-  const usuarioLogeado = user?.id;
-
-  useEffect(() => {
-    const cargarProducto = async () => {
-      try {
-        const response = await fetchProductos();
-        if (response && Array.isArray(response.data)) {
-          const productoEncontrado = response.data.find(
-            (prod) => prod.id === parseInt(id)
-          );
-
-          if (productoEncontrado) {
-            setProducto(productoEncontrado);
-            setImagenSeleccionada(productoEncontrado.imagenes[0]);
-          } else {
-            setError("Producto no encontrado.");
-          }
+  // Cargar detalles del producto
+  const cargarProducto = async () => {
+    try {
+      const response = await fetchProductos();
+      if (response && Array.isArray(response.data)) {
+        const productoEncontrado = response.data.find(
+          (prod) => prod.id === parseInt(id)
+        );
+        if (productoEncontrado) {
+          setProducto(productoEncontrado);
+          setImagenSeleccionada(productoEncontrado.imagenes[0]);
         } else {
-          setError("Formato de productos incorrecto.");
+          setError("Producto no encontrado.");
         }
-      } catch (err) {
-        setError("Error al cargar los detalles del producto.");
+      } else {
+        throw new Error("Formato de respuesta incorrecto.");
       }
-    };
+    } catch (err) {
+      toastr.error("Error al cargar el producto.");
+      setError("Error al cargar los detalles del producto.");
+    }
+  };
 
+  useEffect(() => {
+    cargarUsuario();
     cargarProducto();
   }, [id]);
 
   const handleAgregarAlCarrito = async () => {
     try {
+      // Verificar si el producto ya existe en el carrito
       const productoEnCarrito = carrito.find((p) => p.id === producto.id);
-      const cantidadTotal = (productoEnCarrito?.cantidad || 0) + cantidad;
 
-      const response = await dispatch(
-        addProducto({ productoId: producto.id, cantidad: cantidadTotal })
-      ).unwrap();
+      if (productoEnCarrito) {
+        toastr.info("Este producto ya está en tu carrito.");
+        return;
+      }
 
-      alert(
-        response.existing
-          ? "Cantidad actualizada en el carrito"
-          : "Producto agregado al carrito"
-      );
+      // Verificar si hay stock disponible
+      if (producto.stock <= 0) {
+        toastr.error("El producto no tiene stock disponible.");
+        return;
+      }
+
+      // Agregar el producto con cantidad 1 por defecto
+      await dispatch(addProducto({ productoId: producto.id, cantidad: 1 })).unwrap();
+      toastr.success("Producto agregado al carrito con éxito!");
     } catch (error) {
-      console.error("Error al agregar el producto al carrito", error);
-      alert("Ocurrió un error al agregar el producto");
+      toastr.error("Error al agregar el producto al carrito.");
     }
   };
 
@@ -103,17 +109,16 @@ const ProductoDetallesPage = () => {
   }
 
   if (!producto) {
-    return (
-      <p className="text-gray-500 text-center mt-10">Cargando producto...</p>
-    );
+    return <p className="text-gray-500 text-center mt-10">Cargando producto...</p>;
   }
 
-  const esProductoDelUsuario = producto.usuario_id === usuarioLogeado;
+  const esProductoDelUsuario = producto.usuario_id === user?.id;
 
   return (
     <Layout>
       <div className="container mx-auto p-6 bg-white">
         <div className="flex flex-col lg:flex-row gap-10">
+          {/* Sección de imágenes */}
           <div className="lg:w-2/5 flex flex-col items-center">
             <div className="relative w-full h-96 border rounded-md overflow-hidden">
               <img
@@ -138,6 +143,7 @@ const ProductoDetallesPage = () => {
                 </button>
               </div>
             </div>
+            {/* Miniaturas */}
             <div className="flex gap-4 mt-4">
               {producto.imagenes.map((img, index) => (
                 <img
@@ -153,6 +159,7 @@ const ProductoDetallesPage = () => {
             </div>
           </div>
 
+          {/* Sección de detalles */}
           <div className="lg:w-3/5 flex flex-col gap-6">
             <h1 className="text-3xl font-semibold text-gray-800">
               {producto.titulo}
@@ -165,29 +172,18 @@ const ProductoDetallesPage = () => {
               <span className="font-medium">Stock:</span> {producto.stock}
             </p>
 
+            {/* Acciones */}
             {esProductoDelUsuario ? (
-              <div className="flex space-x-4 mt-4 md:mt-0">
+              <div className="flex space-x-4 mt-4">
                 <Link
                   to={`/editar-producto/${producto.id}`}
-                  className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition duration-300"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                 >
                   Editar
                 </Link>
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-4">
-                  <label>Cantidad:</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={cantidad}
-                    onChange={(e) =>
-                      setCantidad(Math.max(1, parseInt(e.target.value, 10)))
-                    }
-                    className="border border-gray-300 rounded-lg px-2 py-1 w-16"
-                  />
-                </div>
                 <button
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition"
                   onClick={handleAgregarAlCarrito}

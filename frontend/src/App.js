@@ -5,6 +5,7 @@ import {
   Route,
   Outlet,
 } from "react-router-dom";
+import 'toastr/build/toastr.min.css';
 import Dashboard from "./pages/dashboard";
 import Home from "./pages/home";
 import Login from "./pages/login";
@@ -33,7 +34,7 @@ const PrivateRoutes = () => {
 const RestrictedRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
 
-  return <>{!isAuth ? <Outlet /> : <Navigate to="/dashboard" />}</>;
+  return <>{!isAuth ? <Outlet /> : <Navigate to="/" />}</>;
 };
 
 const App = () => {

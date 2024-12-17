@@ -12,6 +12,7 @@ const crearProducto = async (req, res) => {
     );
 
     const nuevoProducto = await Producto.create({
+      
       titulo,
       descripcion,
       precio,
@@ -167,6 +168,7 @@ const obtenerMisProductos = async (req, res) => {
   }
   
 };
+
 const obtenerProductosfiltrados = async (req, res) => {
   try {
     // Obtener categoria_id de los parámetros de la consulta

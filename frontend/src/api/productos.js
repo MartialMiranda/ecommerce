@@ -41,3 +41,4 @@ export const fetchCategorias = async (token) => {
   };
   return await axios.get(`${API_BASE_URL}/productos/categorias`, config);
 };
+

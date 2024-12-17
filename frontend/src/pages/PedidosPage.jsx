@@ -47,7 +47,7 @@ const PedidosPage = () => {
                 <p className="text-gray-500">
                   Fecha: {new Date(pedido.fecha_pedido).toLocaleString()}
                 </p>
-                <p className="text-gray-500">Total: ${pedido.total}</p>
+                <p className="text-gray-500">Total: Bs.{pedido.total}</p>
                 <p className="text-gray-500">Estado: {pedido.estado}</p>
               </div>
 
