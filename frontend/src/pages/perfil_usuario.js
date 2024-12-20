@@ -1,7 +1,37 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect,useState  } from 'react';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchVentas, fetchPedidos } from '../redux/slices/pedidoSlice';
 
-const PerfilUsuario = ({ onLogout, user  }) => {
+const PerfilUsuario = ({ onLogout, user }) => {
+  const dispatch = useDispatch();
+  const { ventas, status } = useSelector((state) => state.pedido);
+
+  // Estado para controlar la clase de parpadeo
+  const [highlight, setHighlight] = useState(false);
+
+  
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    dispatch(fetchVentas());
+    dispatch(fetchPedidos());
+  }, [dispatch]);
+  
+   // Contar ventas pendientes
+   const ventasPendientes = ventas.filter(
+    (venta) => venta.estado === "pendiente"
+  ).length;
+
+  useEffect(() => {
+    if (ventasPendientes > 0) {
+      setHighlight(true);
+      const timeout = setTimeout(() => setHighlight(false), 5000); // Quitar parpadeo después de 2s
+      return () => clearTimeout(timeout);
+    }
+  }, [ventasPendientes]);
+
+ 
+
   return (
     <div className="bg-gray-100 min-h-screen p-8">
       {/* Encabezado del Perfil */}
@@ -24,7 +54,6 @@ const PerfilUsuario = ({ onLogout, user  }) => {
         <h3 className="text-gray-700 text-xl font-semibold mb-4">Accesos Rápidos</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Aquí agregamos los accesos directos */}
           <Link
             to="/mis-direcciones"
             className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-blue-50 transition duration-200"
@@ -63,19 +92,35 @@ const PerfilUsuario = ({ onLogout, user  }) => {
             </div>
             <span className="text-yellow-500">➡️</span>
           </Link>
+
           <Link
             to="/mis-ventas"
-            className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-purple-50 transition duration-200"
+            className={`relative flex items-center justify-between p-4 rounded-lg shadow transition duration-200 ${
+              highlight
+                ? "bg-red-100 animate-highlight"
+                : "bg-white hover:bg-purple-50"
+            }`}
           >
             <div className="flex items-center space-x-4">
               <div className="bg-purple-100 p-3 rounded-full">
                 <span className="text-purple-500 text-xl">🕐</span>
               </div>
-              <span className="text-gray-800 font-medium">Mis Ventas</span>
+              <div className="flex items-center">
+                <span className="text-gray-800 font-medium">Mis Ventas</span>
+                {status === "succeeded" && ventasPendientes > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {ventasPendientes}
+                  </span>
+                )}
+                {status === "loading" && (
+                  <span className="ml-2 bg-gray-200 text-gray-600 text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                    ...
+                  </span>
+                )}
+              </div>
             </div>
             <span className="text-purple-500">➡️</span>
           </Link>
-          
         </div>
       </div>
 
@@ -89,7 +134,7 @@ const PerfilUsuario = ({ onLogout, user  }) => {
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PerfilUsuario
+export default PerfilUsuario;

@@ -119,11 +119,12 @@ const pedidoSlice = createSlice({
       })
       .addCase(fetchVentas.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.ventas = action.payload;
+        state.ventas = action.payload; // Aquí se guardan las ventas.
       })
       .addCase(fetchVentas.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.error.message;
+        state.ventas = []; // Asegúrate de que esté vacío si no hay ventas.
       })
       // Crear pedido
       .addCase(createPedido.pending, (state) => {

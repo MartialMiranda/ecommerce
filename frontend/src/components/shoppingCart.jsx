@@ -33,14 +33,15 @@ const ShoppingCart = () => {
   const handleCantidadChange = async (productoId, nuevaCantidad, stock) => {
     if (nuevaCantidad < 1) nuevaCantidad = 1;
 
-    // Verifica el stock disponible
-    if (nuevaCantidad > stock) {
+    // Verifica el stock disponible no sea menor a la cantidad seleccionada
+    if (stock <= 0) {
       setErroresStock((prev) => ({
         ...prev,
-        [productoId]: `Solo hay ${stock} unidades disponibles.`,
+        [productoId]: "No hay suficiente stock disponible.",
       }));
-      return; // No despacha si excede el stock
+      return;
     }
+    
 
     setErroresStock((prev) => {
       const updated = { ...prev };

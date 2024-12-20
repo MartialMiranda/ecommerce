@@ -34,22 +34,17 @@ const MisVentas = () => {
   }, {});
 
   const handleEstadoChange = async (pedidoId, nuevoEstado) => {
-    // Guardar el estado anterior para revertir si hay un error
     const estadoAnterior = pedidosAgrupados[pedidoId][0].estado;
-
-    // Actualizar temporalmente el estado local
     const updatedVentas = ventas.map((venta) =>
       venta.pedido_id === pedidoId ? { ...venta, estado: nuevoEstado } : venta
     );
     dispatch({ type: "pedido/updateVentas", payload: updatedVentas });
 
     try {
-      // Enviar la actualización al servidor
       await dispatch(updateEstadoPedido({ pedidoId, estado: nuevoEstado })).unwrap();
       await dispatch(fetchPedidos());
       toastr.success(`El estado del pedido #${pedidoId} ha sido actualizado a "${nuevoEstado}".`);
     } catch (error) {
-      // Revertir el cambio si falla
       const revertedVentas = ventas.map((venta) =>
         venta.pedido_id === pedidoId ? { ...venta, estado: estadoAnterior } : venta
       );
@@ -67,12 +62,11 @@ const MisVentas = () => {
         {status === "loading" && <p>Cargando ventas...</p>}
         {status === "failed" && <p className="text-red-500">{error}</p>}
 
-        {status === "succeeded" &&
-          Object.keys(pedidosAgrupados).length === 0 && (
-            <p className="text-gray-500">No tienes ventas registradas.</p>
-          )}
+        {status === "succeeded" && ventas.length === 0 && (
+          <p className="text-gray-500">No tienes ventas registradas.</p>
+        )}
 
-        {status === "succeeded" && Object.keys(pedidosAgrupados).length > 0 && (
+        {status === "succeeded" && ventas.length > 0 && (
           <div className="space-y-4">
             {Object.entries(pedidosAgrupados).map(([pedidoId, productos]) => {
               const comprador = productos[0].comprador_nombre;
@@ -80,37 +74,25 @@ const MisVentas = () => {
               const estadoPedido = productos[0].estado;
 
               return (
-                <div
-                  key={pedidoId}
-                  className="bg-white shadow-md rounded-lg p-4"
-                >
-                  {/* Información general del pedido */}
+                <div key={pedidoId} className="bg-white shadow-md rounded-lg p-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h2 className="text-lg font-bold text-gray-700">
-                        Pedido #{pedidoId}
-                      </h2>
+                      <h2 className="text-lg font-bold text-gray-700">Pedido #{pedidoId}</h2>
                       <p className="text-gray-600 text-sm">
                         Comprador: {comprador} ({compradorEmail})
                       </p>
                       <p className="text-gray-600 text-sm">
-                        Estado:{" "}
-                        <span className="font-bold capitalize">
-                          {estadoPedido}
-                        </span>
+                        Estado: <span className="font-bold capitalize">{estadoPedido}</span>
                       </p>
                     </div>
                     <button
                       onClick={() => togglePedidoDetails(pedidoId)}
                       className="text-blue-500 underline hover:text-blue-600"
                     >
-                      {expandedPedido[pedidoId]
-                        ? "Ocultar detalles"
-                        : "Ver detalles"}
+                      {expandedPedido[pedidoId] ? "Ocultar detalles" : "Ver detalles"}
                     </button>
                   </div>
 
-                  {/* Detalles del pedido */}
                   {expandedPedido[pedidoId] && (
                     <div className="mt-4">
                       <table className="min-w-full table-auto">
@@ -119,9 +101,7 @@ const MisVentas = () => {
                             <th className="py-2 px-4 text-left">Producto</th>
                             <th className="py-2 px-4 text-left">Descripción</th>
                             <th className="py-2 px-4 text-left">Cantidad</th>
-                            <th className="py-2 px-4 text-left">
-                              Precio Unitario
-                            </th>
+                            <th className="py-2 px-4 text-left">Precio Unitario</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -137,32 +117,23 @@ const MisVentas = () => {
                                 )}
                                 <span>{venta.producto_titulo}</span>
                               </td>
-                              <td className="py-2 px-4">
-                                {venta.producto_descripcion}
-                              </td>
+                              <td className="py-2 px-4">{venta.producto_descripcion}</td>
                               <td className="py-2 px-4">{venta.cantidad}</td>
-                              <td className="py-2 px-4">
-                                Bs.{venta.precio_unitario}
-                              </td>
+                              <td className="py-2 px-4">Bs.{venta.precio_unitario}</td>
                             </tr>
                           ))}
                         </tbody>
                         <tfoot>
                           <tr className="bg-gray-200 text-gray-700">
                             <td className="py-2 px-4"></td>
-                            <td
-                              colSpan="2"
-                              className="py-2 px-4 text-right font-bold"
-                            >
+                            <td colSpan="2" className="py-2 px-4 text-right font-bold">
                               Total:
                             </td>
                             <td className="py-2 px-2">
                               Bs.
                               {productos
                                 .reduce(
-                                  (total, venta) =>
-                                    total +
-                                    venta.precio_unitario * venta.cantidad,
+                                  (total, venta) => total + venta.precio_unitario * venta.cantidad,
                                   0
                                 )
                                 .toFixed(2)}
@@ -173,7 +144,6 @@ const MisVentas = () => {
                     </div>
                   )}
 
-                  {/* Acciones del pedido */}
                   {estadoPedido !== "cancelado" && estadoPedido !== "completado" && (
                     <div className="mt-4 flex justify-end space-x-2">
                       <button

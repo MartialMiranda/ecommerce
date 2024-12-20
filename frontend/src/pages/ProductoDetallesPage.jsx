@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducto } from "../redux/slices/carritoSlice";
 import { fetchProductos } from "../api/productos";
@@ -12,6 +12,7 @@ import "toastr/build/toastr.css";
 const ProductoDetallesPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [producto, setProducto] = useState(null);
   const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
   const [error, setError] = useState(null);
@@ -19,7 +20,6 @@ const ProductoDetallesPage = () => {
 
   const carrito = useSelector((state) => state.carrito.productos);
 
-  // Configuración global de Toastr
   toastr.options = {
     positionClass: "toast-top-right",
     timeOut: "3000",
@@ -33,11 +33,13 @@ const ProductoDetallesPage = () => {
       const response = await fetchProtectedInfo();
       setUser(response.data.usuario);
     } catch (error) {
-      setError("Error al obtener la información del usuario.");
+      // Solo establecer error si no es un error de autenticación
+      if (error.response?.status !== 401) {
+        setError("Error al obtener la información del usuario.");
+      }
     }
   };
 
-  // Cargar detalles del producto
   const cargarProducto = async () => {
     try {
       const response = await fetchProductos();
@@ -65,9 +67,18 @@ const ProductoDetallesPage = () => {
     cargarProducto();
   }, [id]);
 
+  const redirigirLogin = () => {
+    toastr.warning("Por favor, inicia sesión para continuar.");
+    navigate("/login");
+  };
+
   const handleAgregarAlCarrito = async () => {
+    if (!user) {
+      redirigirLogin();
+      return;
+    }
+
     try {
-      // Verificar si el producto ya existe en el carrito
       const productoEnCarrito = carrito.find((p) => p.id === producto.id);
 
       if (productoEnCarrito) {
@@ -75,18 +86,36 @@ const ProductoDetallesPage = () => {
         return;
       }
 
-      // Verificar si hay stock disponible
       if (producto.stock <= 0) {
         toastr.error("El producto no tiene stock disponible.");
         return;
       }
 
-      // Agregar el producto con cantidad 1 por defecto
-      await dispatch(addProducto({ productoId: producto.id, cantidad: 1 })).unwrap();
+      await dispatch(
+        addProducto({ productoId: producto.id, cantidad: 1 })
+      ).unwrap();
       toastr.success("Producto agregado al carrito con éxito!");
     } catch (error) {
       toastr.error("Error al agregar el producto al carrito.");
     }
+  };
+
+  const handleFavorito = () => {
+    if (!user) {
+      redirigirLogin();
+      return;
+    }
+    // Lógica para agregar a favoritos
+    toastr.success("Producto agregado a favoritos");
+  };
+
+  const handleReportar = () => {
+    if (!user) {
+      redirigirLogin();
+      return;
+    }
+    // Lógica para reportar producto
+    toastr.info("Función de reporte en desarrollo");
   };
 
   const manejarZoom = (e) => {
@@ -109,7 +138,9 @@ const ProductoDetallesPage = () => {
   }
 
   if (!producto) {
-    return <p className="text-gray-500 text-center mt-10">Cargando producto...</p>;
+    return (
+      <p className="text-gray-500 text-center mt-10">Cargando producto...</p>
+    );
   }
 
   const esProductoDelUsuario = producto.usuario_id === user?.id;
@@ -118,7 +149,6 @@ const ProductoDetallesPage = () => {
     <Layout>
       <div className="container mx-auto p-6 bg-white">
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Sección de imágenes */}
           <div className="lg:w-2/5 flex flex-col items-center">
             <div className="relative w-full h-96 border rounded-md overflow-hidden">
               <img
@@ -131,19 +161,20 @@ const ProductoDetallesPage = () => {
               <div className="absolute top-4 right-4 flex flex-col gap-2">
                 <button
                   title="Marcar como favorito"
+                  onClick={handleFavorito}
                   className="p-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition"
                 >
                   <FaHeart size={20} />
                 </button>
                 <button
                   title="Reportar"
+                  onClick={handleReportar}
                   className="p-2 bg-gray-500 text-white rounded-full shadow-md hover:bg-gray-600 transition"
                 >
                   <FaFlag size={20} />
                 </button>
               </div>
             </div>
-            {/* Miniaturas */}
             <div className="flex gap-4 mt-4">
               {producto.imagenes.map((img, index) => (
                 <img
@@ -159,7 +190,6 @@ const ProductoDetallesPage = () => {
             </div>
           </div>
 
-          {/* Sección de detalles */}
           <div className="lg:w-3/5 flex flex-col gap-6">
             <h1 className="text-3xl font-semibold text-gray-800">
               {producto.titulo}
@@ -169,10 +199,19 @@ const ProductoDetallesPage = () => {
               Bs. {producto.precio}
             </p>
             <p className="text-gray-500">
-              <span className="font-medium">Stock:</span> {producto.stock}
+              <span className="font-medium">Stock:</span>{" "}
+              <span
+                className={`${
+                  producto.stock === 0 ? "text-red-500 line-through" : ""
+                }`}
+              >
+                {producto.stock}
+              </span>
+              {producto.stock === 0 && (
+                <span className="ml-2 text-red-500">No disponible</span>
+              )}
             </p>
 
-            {/* Acciones */}
             {esProductoDelUsuario ? (
               <div className="flex space-x-4 mt-4">
                 <Link
@@ -185,10 +224,17 @@ const ProductoDetallesPage = () => {
             ) : (
               <>
                 <button
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition"
+                  className={`w-full py-3 px-6 rounded-lg font-medium transition ${
+                    producto.stock === 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600 text-white"
+                  }`}
                   onClick={handleAgregarAlCarrito}
+                  disabled={producto.stock === 0}
                 >
-                  Agregar al carrito
+                  {producto.stock === 0
+                    ? "Sin stock disponible"
+                    : "Agregar al carrito"}
                 </button>
               </>
             )}
