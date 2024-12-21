@@ -24,3 +24,8 @@ export async function onLogout() {
 export async function fetchProtectedInfo() {
   return await axios.get("http://localhost:8000/api/protected");
 }
+
+
+export async function obtenerUsuarioPorId(id) {
+  return await axios.get(`http://localhost:8000/api/usuarios/${id}`);
+}

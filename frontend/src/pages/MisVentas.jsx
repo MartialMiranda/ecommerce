@@ -8,14 +8,17 @@ import toastr from "toastr";
 const MisVentas = () => {
   const dispatch = useDispatch();
   const { ventas, status, error } = useSelector((state) => state.pedido);
-
   const [expandedPedido, setExpandedPedido] = useState({});
+  const [actualizandoEstado, setActualizandoEstado] = useState(false);
 
   useEffect(() => {
-    // Obtener las ventas del vendedor y pedidos al cargar
-    dispatch(fetchVentas());
-    dispatch(fetchPedidos());
+    cargarDatos();
   }, [dispatch]);
+
+  const cargarDatos = async () => {
+    await dispatch(fetchVentas());
+    await dispatch(fetchPedidos());
+  };
 
   const togglePedidoDetails = (pedidoId) => {
     setExpandedPedido((prev) => ({
@@ -24,7 +27,6 @@ const MisVentas = () => {
     }));
   };
 
-  // Agrupar productos por pedido
   const pedidosAgrupados = ventas.reduce((acc, venta) => {
     if (!acc[venta.pedido_id]) {
       acc[venta.pedido_id] = [];
@@ -34,23 +36,33 @@ const MisVentas = () => {
   }, {});
 
   const handleEstadoChange = async (pedidoId, nuevoEstado) => {
+    setActualizandoEstado(true);
     const estadoAnterior = pedidosAgrupados[pedidoId][0].estado;
-    const updatedVentas = ventas.map((venta) =>
-      venta.pedido_id === pedidoId ? { ...venta, estado: nuevoEstado } : venta
-    );
-    dispatch({ type: "pedido/updateVentas", payload: updatedVentas });
 
     try {
+      // Actualizar estado optimistamente
+      const updatedVentas = ventas.map((venta) =>
+        venta.pedido_id === pedidoId ? { ...venta, estado: nuevoEstado } : venta
+      );
+      dispatch({ type: "pedido/updateVentas", payload: updatedVentas });
+
+      // Realizar la actualización en el servidor
       await dispatch(updateEstadoPedido({ pedidoId, estado: nuevoEstado })).unwrap();
-      await dispatch(fetchPedidos());
+      
+      // Recargar datos
+      await cargarDatos();
+      
       toastr.success(`El estado del pedido #${pedidoId} ha sido actualizado a "${nuevoEstado}".`);
     } catch (error) {
+      // Revertir cambios en caso de error
       const revertedVentas = ventas.map((venta) =>
         venta.pedido_id === pedidoId ? { ...venta, estado: estadoAnterior } : venta
       );
       dispatch({ type: "pedido/updateVentas", payload: revertedVentas });
       toastr.error("Error al actualizar el estado del pedido. Inténtalo de nuevo.");
       console.error("Error al actualizar el estado:", error);
+    } finally {
+      setActualizandoEstado(false);
     }
   };
 
@@ -146,19 +158,21 @@ const MisVentas = () => {
 
                   {estadoPedido !== "cancelado" && estadoPedido !== "completado" && (
                     <div className="mt-4 flex justify-end space-x-2">
-                      <button
-                        onClick={() => handleEstadoChange(pedidoId, "enviando")}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition duration-200"
-                        disabled={estadoPedido === "enviando" || status === "loading"}
-                      >
-                        Marcar como Enviado
-                      </button>
+                      {estadoPedido !== "enviando" && (
+                        <button
+                          onClick={() => handleEstadoChange(pedidoId, "enviando")}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition duration-200"
+                          disabled={actualizandoEstado}
+                        >
+                          {actualizandoEstado ? "Actualizando..." : "Marcar como Enviado"}
+                        </button>
+                      )}
                       <button
                         onClick={() => handleEstadoChange(pedidoId, "completado")}
                         className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-600 transition duration-200"
-                        disabled={estadoPedido === "completado" || status === "loading"}
+                        disabled={actualizandoEstado || estadoPedido === "completado"}
                       >
-                        Marcar como Completado
+                        {actualizandoEstado ? "Actualizando..." : "Marcar como Completado"}
                       </button>
                     </div>
                   )}

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchDetallesPedido } from "../redux/slices/pedidoSlice";
 import { useParams } from "react-router-dom";
+import Layout from "../components/layout";
 
 const DetallePedidoPage = () => {
   const { pedidoId } = useParams();
@@ -28,6 +29,7 @@ const DetallePedidoPage = () => {
   }
 
   return (
+    <Layout>
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Detalle del Pedido #{pedidoId}</h1>
       <ul className="space-y-4">
@@ -58,6 +60,7 @@ const DetallePedidoPage = () => {
         ))}
       </ul>
     </div>
+    </Layout>
   );
 };
 
