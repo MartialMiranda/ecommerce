@@ -47,6 +47,7 @@ const obtenerProductos = async (req, res) => {
       .json({ message: "Error al obtener productos", error: error.message });
   }
 };
+
 const obtenerCategorias = async (req, res) => {
   try {
     const categorias = await Producto.getCategorias();

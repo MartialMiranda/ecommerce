@@ -19,20 +19,36 @@ class CarritoController {
     const { productoId, cantidad } = req.body;
   
     try {
-      //console.log('Usuario autenticado:', req.user); // Agrega este log para depurar
-      const usuarioId = req.user.id; // Tomar el usuario logueado
-  
+      const usuarioId = req.user.id;
+      
+      // Validaciones básicas
+      if (!cantidad || cantidad < 1) {
+        return res.status(400).json({ 
+          message: 'La cantidad debe ser mayor a cero' 
+        });
+      }
+
       const producto = await CarritoDao.agregarProducto(usuarioId, productoId, cantidad);
   
       res.json({
         mensaje: 'Producto agregado al carrito',
         producto: {
           ...producto,
-          usuario_id: usuarioId, // Asegúrate de que el ID del usuario esté incluido en la respuesta
+          usuario_id: usuarioId,
         },
       });
     } catch (error) {
-      res.status(500).json({ message: 'Error al agregar el producto', error });
+      // Manejamos específicamente los errores de stock
+      if (error.message.includes('Stock insuficiente')) {
+        return res.status(400).json({ 
+          message: error.message 
+        });
+      }
+      
+      res.status(500).json({ 
+        message: 'Error al agregar el producto', 
+        error: error.message 
+      });
     }
   }
   
