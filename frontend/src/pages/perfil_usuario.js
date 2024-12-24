@@ -25,7 +25,7 @@ const PerfilUsuario = ({ onLogout, user }) => {
   useEffect(() => {
     if (ventasPendientes > 0) {
       setHighlight(true);
-      const timeout = setTimeout(() => setHighlight(false), 5000); // Quitar parpadeo después de 2s
+      const timeout = setTimeout(() => setHighlight(false), 5000);
       return () => clearTimeout(timeout);
     }
   }, [ventasPendientes]);
@@ -120,6 +120,19 @@ const PerfilUsuario = ({ onLogout, user }) => {
               </div>
             </div>
             <span className="text-purple-500">➡️</span>
+          </Link>
+
+          <Link
+            to="/mis-favoritos"
+            className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-red-50 transition duration-200"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <span className="text-red-500 text-xl">❤</span>
+              </div>
+              <span className="text-gray-800 font-medium">Mis Favoritos</span>
+            </div>
+            <span className="text-red-500">➡️</span>
           </Link>
         </div>
       </div>

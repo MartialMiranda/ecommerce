@@ -5,7 +5,7 @@ import {
   Route,
   Outlet,
 } from "react-router-dom";
-import 'toastr/build/toastr.min.css';
+import "toastr/build/toastr.min.css";
 import Dashboard from "./pages/dashboard";
 import Home from "./pages/home";
 import Login from "./pages/login";
@@ -24,6 +24,7 @@ import ConfirmacionPedidoPage from "./pages/ConfirmacionPedidoPage";
 import DetallePedidoPage from "./pages/DetallePedidoPage";
 import PedidosPage from "./pages/PedidosPage";
 import MisVentas from "./pages/MisVentas";
+import MisFavoritos from "./pages/MisFavoritos";
 
 const PrivateRoutes = () => {
   const { isAuth } = useSelector((state) => state.auth);
@@ -66,6 +67,7 @@ const App = () => {
               path="/confirmacion-pedido"
               element={<ConfirmacionPedidoPage />}
             />
+            <Route path="/mis-favoritos" element={<MisFavoritos />} />
           </Route>
 
           {/* Rutas restringidas */}

@@ -6,6 +6,7 @@ import carritoReducer from './slices/carritoSlice';
 import pedidoReducer from "./slices/pedidoSlice";
 import pagoReducer from "./slices/pagoSlice";
 import categoriaReducer from './slices/categoriaSlice';
+import favoritosReducer from './slices/favoritoSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     pedido: pedidoReducer,
     pago: pagoReducer,
     categoria: categoriaReducer,
+    favoritos: favoritosReducer,
   },
 });

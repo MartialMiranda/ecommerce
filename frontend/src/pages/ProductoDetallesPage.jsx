@@ -2,9 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducto } from "../redux/slices/carritoSlice";
+import {
+  addFavoritoAction,
+  removeFavoritoAction,
+  getFavoritos,
+} from "../redux/slices/favoritoSlice";
 import { fetchProductos } from "../api/productos";
 import { fetchProtectedInfo } from "../api/auth";
-import { FaHeart, FaFlag } from "react-icons/fa";
+import { FaFlag } from "react-icons/fa";
+import { Heart } from "lucide-react";
 import Layout from "../components/layout";
 import toastr from "toastr";
 import "toastr/build/toastr.css";
@@ -18,6 +24,7 @@ const ProductoDetallesPage = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
 
+  const favoritos = useSelector((state) => state.favoritos.favoritos);
   const carrito = useSelector((state) => state.carrito.productos);
 
   toastr.options = {
@@ -63,9 +70,26 @@ const ProductoDetallesPage = () => {
   };
 
   useEffect(() => {
-    cargarUsuario();
+    const inicializar = async () => {
+      try {
+        const response = await fetchProtectedInfo();
+        setUser(response.data.usuario);
+
+        // Load favorites if user is authenticated
+        if (response.data.usuario) {
+          await dispatch(getFavoritos()).unwrap();
+        }
+      } catch (error) {
+        if (error.response?.status === 401) {
+          setUser(null);
+        } else {
+          setError("Error al obtener la información del usuario.");
+        }
+      }
+    };
+    inicializar();
     cargarProducto();
-  }, [id]);
+  }, [id, dispatch]);
 
   const redirigirLogin = () => {
     toastr.warning("Por favor, inicia sesión para continuar.");
@@ -100,13 +124,35 @@ const ProductoDetallesPage = () => {
     }
   };
 
-  const handleFavorito = () => {
+  // Update esFavorito check
+  const esFavorito = favoritos.some(
+    (fav) =>
+      Number(fav.producto_id) === Number(producto?.id) ||
+      Number(fav.id) === Number(producto?.id)
+  );
+
+  // Update handleFavorito function
+  const handleFavorito = async (e) => {
+    if (e) e.preventDefault();
+
     if (!user) {
-      redirigirLogin();
+      toastr.warning("Por favor, inicia sesión para agregar favoritos.");
+      navigate("/login");
       return;
     }
-    // Lógica para agregar a favoritos
-    toastr.success("Producto agregado a favoritos");
+
+    try {
+      if (esFavorito) {
+        await dispatch(removeFavoritoAction(producto.id)).unwrap();
+        toastr.success("Eliminado de favoritos");
+      } else {
+        await dispatch(addFavoritoAction(producto.id)).unwrap();
+        toastr.success("Agregado a favoritos");
+      }
+      await dispatch(getFavoritos()).unwrap();
+    } catch (error) {
+      toastr.error("Error al actualizar favoritos");
+    }
   };
 
   const handleReportar = () => {
@@ -162,9 +208,13 @@ const ProductoDetallesPage = () => {
                 <button
                   title="Marcar como favorito"
                   onClick={handleFavorito}
-                  className="p-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition"
+                  className=" z-10 bg-white rounded-full shadow-md p-2 hover:bg-red-500 transition"
                 >
-                  <FaHeart size={20} />
+                  <Heart
+                    className={` ${
+                      esFavorito ? "fill-red-500 text-red-500 hover:text-white" : "hover:text-white"
+                    }`}
+                  />
                 </button>
                 <button
                   title="Reportar"
